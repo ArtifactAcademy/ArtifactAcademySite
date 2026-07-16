@@ -4,7 +4,7 @@ Milestone 0 for the Artifact Academy student product, internally named **Artifac
 
 ## Stack
 
-- Vite, React 19, and strict TypeScript
+- Vite, React 19,  and strict TypeScript
 - Tailwind CSS v4 through the official Vite plugin
 - React Router
 - shadcn-compatible local components and Base UI primitives

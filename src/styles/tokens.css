@@ -1,0 +1,127 @@
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
+  --zinc-950: oklch(0.155 0.004 285);
+  --zinc-925: oklch(0.185 0.004 285);
+  --zinc-900: oklch(0.205 0.004 285);
+  --zinc-850: oklch(0.235 0.005 285);
+  --zinc-800: oklch(0.274 0.006 286);
+  --zinc-700: oklch(0.37 0.007 285);
+  --zinc-500: oklch(0.552 0.01 285);
+  --zinc-400: oklch(0.68 0.01 286);
+  --zinc-300: oklch(0.795 0.008 286);
+  --zinc-200: oklch(0.9 0.005 286);
+  --zinc-100: oklch(0.955 0.003 286);
+  --zinc-50: oklch(0.984 0.002 286);
+  --white: oklch(0.995 0 0);
+  --green: oklch(0.72 0.15 155);
+  --clay: oklch(0.705 0.135 45);
+  --violet: oklch(0.68 0.16 285);
+  --amber: oklch(0.78 0.13 78);
+  --red: oklch(0.64 0.185 25);
+  --blue: oklch(0.65 0.13 240);
+
+  --ds-bg: var(--zinc-950);
+  --ds-page: oklch(0.115 0.004 285);
+  --ds-surface: var(--zinc-900);
+  --ds-surface-2: var(--zinc-850);
+  --ds-elevated: var(--zinc-800);
+  --ds-fg: var(--zinc-50);
+  --ds-fg-muted: var(--zinc-400);
+  --ds-fg-subtle: var(--zinc-500);
+  --ds-border: oklch(0.285 0.006 286);
+  --ds-border-strong: oklch(0.345 0.007 286);
+  --ds-primary: var(--zinc-50);
+  --ds-primary-fg: var(--zinc-950);
+  --ds-success: var(--green);
+  --ds-success-soft: color-mix(in oklch, var(--green) 16%, var(--ds-surface));
+  --ds-clay: var(--clay);
+  --ds-clay-soft: color-mix(in oklch, var(--clay) 16%, var(--ds-surface));
+  --ds-ai: var(--violet);
+  --ds-ai-soft: color-mix(in oklch, var(--violet) 16%, var(--ds-surface));
+  --ds-warning: var(--amber);
+  --ds-error: var(--red);
+  --ds-info: var(--blue);
+  --ds-ring: var(--violet);
+  --ds-shadow-1: 0 1px 2px oklch(0 0 0 / 0.4);
+  --ds-shadow-2: 0 8px 30px oklch(0 0 0 / 0.5);
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --ds-bg: var(--zinc-50);
+  --ds-page: var(--zinc-100);
+  --ds-surface: var(--white);
+  --ds-surface-2: var(--zinc-100);
+  --ds-elevated: var(--zinc-200);
+  --ds-fg: var(--zinc-950);
+  --ds-fg-muted: var(--zinc-500);
+  --ds-fg-subtle: oklch(0.64 0.01 286);
+  --ds-border: var(--zinc-200);
+  --ds-border-strong: var(--zinc-300);
+  --ds-primary: var(--zinc-900);
+  --ds-primary-fg: var(--zinc-50);
+  --ds-success: oklch(0.52 0.11 155);
+  --ds-success-soft: color-mix(in oklch, var(--ds-success) 13%, var(--ds-surface));
+  --ds-clay: oklch(0.52 0.11 42);
+  --ds-clay-soft: color-mix(in oklch, var(--ds-clay) 13%, var(--ds-surface));
+  --ds-ai: oklch(0.52 0.15 285);
+  --ds-ai-soft: color-mix(in oklch, var(--ds-ai) 13%, var(--ds-surface));
+  --ds-ring: oklch(0.52 0.15 285);
+  --ds-shadow-1: 0 1px 2px oklch(0.2 0 0 / 0.06);
+  --ds-shadow-2: 0 4px 16px oklch(0.2 0 0 / 0.08);
+}
+
+[data-mode='marketing'] {
+  color-scheme: light;
+  --ds-bg: oklch(0.975 0.009 78);
+  --ds-page: oklch(0.955 0.014 76);
+  --ds-surface: oklch(0.99 0.006 78);
+  --ds-surface-2: oklch(0.94 0.018 72);
+  --ds-elevated: oklch(0.9 0.025 70);
+  --ds-fg: oklch(0.22 0.018 50);
+  --ds-fg-muted: oklch(0.48 0.024 50);
+  --ds-fg-subtle: oklch(0.61 0.025 52);
+  --ds-border: oklch(0.86 0.024 68);
+  --ds-border-strong: oklch(0.78 0.035 63);
+  --ds-primary: oklch(0.25 0.018 50);
+  --ds-primary-fg: oklch(0.98 0.008 78);
+  --ds-success: oklch(0.48 0.11 152);
+  --ds-success-soft: color-mix(in oklch, var(--ds-success) 12%, var(--ds-surface));
+  --ds-clay: oklch(0.58 0.13 44);
+  --ds-clay-soft: color-mix(in oklch, var(--ds-clay) 12%, var(--ds-surface));
+  --ds-ai: oklch(0.5 0.15 285);
+  --ds-ai-soft: color-mix(in oklch, var(--ds-ai) 11%, var(--ds-surface));
+  --ds-ring: var(--ds-ai);
+  --ds-shadow-1: 0 1px 2px oklch(0.3 0.02 50 / 0.08);
+  --ds-shadow-2: 0 10px 30px oklch(0.3 0.02 50 / 0.1);
+}
+
+/* Rebind Tailwind semantic aliases at every theme boundary so nested previews work. */
+:root,
+[data-theme],
+[data-mode] {
+  --color-background: var(--ds-bg);
+  --color-page: var(--ds-page);
+  --color-card: var(--ds-surface);
+  --color-card-secondary: var(--ds-surface-2);
+  --color-elevated: var(--ds-elevated);
+  --color-foreground: var(--ds-fg);
+  --color-muted: var(--ds-fg-muted);
+  --color-subtle: var(--ds-fg-subtle);
+  --color-border: var(--ds-border);
+  --color-border-strong: var(--ds-border-strong);
+  --color-primary: var(--ds-primary);
+  --color-primary-foreground: var(--ds-primary-fg);
+  --color-success: var(--ds-success);
+  --color-success-soft: var(--ds-success-soft);
+  --color-clay: var(--ds-clay);
+  --color-clay-soft: var(--ds-clay-soft);
+  --color-ai: var(--ds-ai);
+  --color-ai-soft: var(--ds-ai-soft);
+  --color-warning: var(--ds-warning);
+  --color-error: var(--ds-error);
+  --color-info: var(--ds-info);
+  --shadow-panel: var(--ds-shadow-1);
+  --shadow-floating: var(--ds-shadow-2);
+}

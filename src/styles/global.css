@@ -1,0 +1,78 @@
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+@import 'tailwindcss';
+@import './tokens.css';
+
+@theme {
+  --font-sans: 'Geist Variable', 'Geist', system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, monospace;
+  --color-background: var(--ds-bg);
+  --color-page: var(--ds-page);
+  --color-card: var(--ds-surface);
+  --color-card-secondary: var(--ds-surface-2);
+  --color-elevated: var(--ds-elevated);
+  --color-foreground: var(--ds-fg);
+  --color-muted: var(--ds-fg-muted);
+  --color-subtle: var(--ds-fg-subtle);
+  --color-border: var(--ds-border);
+  --color-border-strong: var(--ds-border-strong);
+  --color-primary: var(--ds-primary);
+  --color-primary-foreground: var(--ds-primary-fg);
+  --color-success: var(--ds-success);
+  --color-success-soft: var(--ds-success-soft);
+  --color-clay: var(--ds-clay);
+  --color-clay-soft: var(--ds-clay-soft);
+  --color-ai: var(--ds-ai);
+  --color-ai-soft: var(--ds-ai-soft);
+  --color-warning: var(--ds-warning);
+  --color-error: var(--ds-error);
+  --color-info: var(--ds-info);
+  --radius-control: 0.625rem;
+  --radius-card: 0.875rem;
+  --shadow-panel: var(--ds-shadow-1);
+  --shadow-floating: var(--ds-shadow-2);
+}
+
+* { box-sizing: border-box; }
+
+html {
+  min-width: 320px;
+  background: var(--ds-page);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  position: relative;
+  background: var(--ds-page);
+  color: var(--ds-fg);
+  font-family: 'Geist Variable', 'Geist', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#root { min-height: 100vh; isolation: isolate; }
+button, input, textarea, select { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+
+:focus-visible {
+  outline: 2px solid var(--ds-ring);
+  outline-offset: 2px;
+}
+
+::selection { background: var(--ds-ai-soft); color: var(--ds-fg); }
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

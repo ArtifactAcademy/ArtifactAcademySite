@@ -22,7 +22,10 @@ public/        static assets and Cloudflare SPA fallback
 - `/` redirects to `/dashboard`
 - `/dashboard` is the approved student dashboard
 - `/components` is the development gallery
-- `/courses`, `/artifacts`, `/portfolio`, `/certificate`, and `/community` are intentional future-facing placeholder routes
+- `/courses` lists the typed mock course catalog
+- `/courses/ai-creator-bootcamp` is the AI Creator Bootcamp overview
+- `/courses/ai-creator-bootcamp/lessons/:lessonId` is the guarded lesson player; locked mock lessons render a locked state instead of player content
+- `/artifacts`, `/portfolio`, `/certificate`, and `/community` are intentional future-facing placeholder routes
 - unmatched routes render an in-shell 404
 
 ## Dependency boundaries
@@ -32,6 +35,7 @@ public/        static assets and Cloudflare SPA fallback
 - Academy components accept typed props and do not know about routing or backend services.
 - Layout components may use React Router for navigation and Base UI for accessible interaction primitives.
 - No network client, authentication state, payment SDK, or persistence layer exists in Milestone 0.
+- Lesson completion demonstration state is local and in-memory. It intentionally resets on refresh.
 
 ## Future integration seams
 

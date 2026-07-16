@@ -1,4 +1,5 @@
 import { ArrowRight, CalendarDays, ExternalLink, LockKeyhole } from 'lucide-react'
+import { useNavigate } from 'react-router'
 import { ArtifactCard } from '../components/academy/artifact-card'
 import { ContinueLearningCard } from '../components/academy/continue-learning-card'
 import { InstructorCallout } from '../components/academy/instructor-callout'
@@ -8,9 +9,13 @@ import { Button } from '../components/ui/button'
 import { Card } from '../components/ui/card'
 import { ProgressBar } from '../components/ui/progress-bar'
 import { StatusBadge } from '../components/ui/status-badge'
-import { nextLessons, recentArtifacts, sessions, upcomingSession } from '../lib/mock-data'
+import { currentCourse, nextLessons, recentArtifacts, sessions, upcomingSession } from '../lib/mock-data'
 
 export function DashboardPage() {
+  const navigate = useNavigate()
+  const coursePath = `/courses/${currentCourse.id}`
+  const activeLessonPath = `${coursePath}/lessons/${currentCourse.activeLessonId}`
+
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
@@ -26,7 +31,7 @@ export function DashboardPage() {
         <div className="min-w-0 space-y-5">
           <div className="grid gap-5 md:grid-cols-12">
             <div className="md:col-span-8">
-              <ContinueLearningCard courseTitle="AI Creator Bootcamp" lesson={2} lessonTitle="Build systems, not screens" minutesRemaining={18} progress={68} session={4} />
+              <ContinueLearningCard courseTitle={currentCourse.title} lesson={2} lessonTitle={currentCourse.nextLesson} minutesRemaining={18} onResume={() => void navigate(activeLessonPath)} onViewCourse={() => void navigate(coursePath)} progress={68} session={4} />
             </div>
             <Card className="flex flex-col p-5 md:col-span-4">
               <div className="mb-4 flex items-center justify-between">
@@ -64,7 +69,7 @@ export function DashboardPage() {
         </div>
 
         <aside className="space-y-5" aria-label="Learning updates">
-          <InstructorCallout instructor="Maya R. · Lead instructor" message="Session 4 office hours moved to Friday. Bring your component library draft—we’ll review it live." />
+          <InstructorCallout instructor="Alireza Alampour · Artifact Academy" message="Bring your component library draft to the next instructor-led session for review." />
           <Card className="p-5">
             <div className="mb-4 flex items-center justify-between"><span className="grid size-9 place-items-center rounded-control bg-card-secondary text-subtle"><LockKeyhole aria-hidden="true" className="size-4" /></span><StatusBadge>Locked</StatusBadge></div>
             <h2 className="text-sm font-semibold">Certificate of completion</h2>

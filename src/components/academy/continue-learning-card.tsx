@@ -11,6 +11,8 @@ interface ContinueLearningCardProps {
   lessonTitle: string
   minutesRemaining: number
   progress: number
+  onResume: () => void
+  onViewCourse: () => void
 }
 
 export function ContinueLearningCard({
@@ -20,6 +22,8 @@ export function ContinueLearningCard({
   lessonTitle,
   minutesRemaining,
   progress,
+  onResume,
+  onViewCourse,
 }: ContinueLearningCardProps) {
   return (
     <Card className="group relative overflow-hidden p-5 sm:p-6">
@@ -37,12 +41,12 @@ export function ContinueLearningCard({
         <p className="mt-2 text-sm leading-6 text-muted">Lesson {lesson} of 3 · About {minutesRemaining} minutes remaining.</p>
         <ProgressBar className="mt-5" label={`${courseTitle} lesson progress`} value={progress} />
         <div className="mt-5 flex flex-wrap items-center gap-2">
-          <Button className="h-11 flex-1 sm:flex-none">
+          <Button className="h-11 flex-1 sm:flex-none" onClick={onResume}>
             <Play aria-hidden="true" className="size-4 fill-current" />
             Resume lesson
           </Button>
-          <Button aria-label="View lesson syllabus" variant="ghost">
-            View syllabus
+          <Button aria-label="View course overview" onClick={onViewCourse} variant="ghost">
+            View course
             <ArrowUpRight aria-hidden="true" className="size-4" />
           </Button>
         </div>

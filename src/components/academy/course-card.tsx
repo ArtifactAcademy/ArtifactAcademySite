@@ -6,9 +6,10 @@ import { ProgressBar } from '../ui/progress-bar'
 
 interface CourseCardProps {
   course: Course
+  onOpen: () => void
 }
 
-export function CourseCard({ course }: CourseCardProps) {
+export function CourseCard({ course, onOpen }: CourseCardProps) {
   return (
     <Card className="p-5">
       <div className="mb-4 flex items-start justify-between gap-4">
@@ -23,7 +24,7 @@ export function CourseCard({ course }: CourseCardProps) {
       <ProgressBar className="mt-5" label={`${course.title} progress`} value={course.progress} />
       <div className="mt-4 flex items-center justify-between gap-3">
         <span className="text-xs text-muted">{course.sessionsComplete} of {course.sessionsTotal} sessions</span>
-        <Button size="sm" variant="ghost">Open <ArrowRight aria-hidden="true" className="size-3.5" /></Button>
+        <Button aria-label={`Open ${course.title}`} onClick={onOpen} size="sm" variant="ghost">Open <ArrowRight aria-hidden="true" className="size-3.5" /></Button>
       </div>
     </Card>
   )

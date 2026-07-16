@@ -1,6 +1,10 @@
 export type ProgressStatus = 'complete' | 'current' | 'upcoming' | 'locked'
 export type Accent = 'neutral' | 'success' | 'clay' | 'ai' | 'warning'
 
+export type CourseLessonStatus = 'completed' | 'in-progress' | 'available' | 'locked'
+export type ArtifactRequirementStatus = 'completed' | 'not-started' | 'locked'
+export type VideoStatus = 'available' | 'unavailable'
+
 export interface Course {
   id: string
   title: string
@@ -10,6 +14,11 @@ export interface Course {
   sessionsComplete: number
   sessionsTotal: number
   nextLesson: string
+  activeLessonId: string
+  format: string
+  duration: string
+  instructor: string
+  organization: string
 }
 
 export interface Session {
@@ -41,4 +50,57 @@ export interface LiveSession {
   date: string
   time: string
   instructor: string
+}
+
+export interface LessonPrompt {
+  title: string
+  prompt: string
+}
+
+export interface LessonCode {
+  filename: string
+  language: string
+  code: string
+}
+
+export interface ArtifactRequirement {
+  id: string
+  title: string
+  description: string
+  status: ArtifactRequirementStatus
+}
+
+export interface CourseLesson {
+  id: string
+  sessionId: string
+  sessionNumber: number
+  position: number
+  title: string
+  durationMinutes: number
+  kind: 'video' | 'reading' | 'artifact' | 'ai'
+  status: CourseLessonStatus
+  watchProgress: number
+  videoStatus: VideoStatus
+  objectives: string[]
+  reading: string[]
+  prompts: LessonPrompt[]
+  codeBlocks: LessonCode[]
+  instructorNote: string
+  outline: string[]
+}
+
+export interface CourseSession {
+  id: string
+  number: number
+  title: string
+  status: CourseLessonStatus
+  progress: number
+  lessons: CourseLesson[]
+  artifact: ArtifactRequirement
+}
+
+export interface CourseResource {
+  id: string
+  title: string
+  type: string
 }

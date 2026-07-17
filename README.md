@@ -1,59 +1,88 @@
 # Artifact Academy
 
-First-cohort MVP for the Artifact Academy student product, internally named **Artifact Learning OS**. The application is a focused learning workspace for the eight-session AI Creator Bootcamp, backed by typed course-content modules and deterministic local interactions.
+First-cohort MVP for the Artifact Academy student product. The application is a focused learning workspace for the eight-session AI Creator Bootcamp, with typed course content, an accessible deterministic lab, and Supabase-backed student state.
 
 ## Stack
 
-- Vite, React 19,  and strict TypeScript
-- Tailwind CSS v4 through the official Vite plugin
-- React Router
-- shadcn-compatible local components and Base UI primitives
-- Lucide icons
-- Locally bundled Geist variable fonts
+- Vite, React 19, strict TypeScript, and React Router
+- Tailwind CSS v4 with semantic design tokens
+- Supabase Auth and Postgres with Row Level Security
 - Discriminated TypeScript lesson blocks rendered by a shared content engine
+- Playwright UI coverage and pgTAP database policy coverage
 
 ## Local development
 
+Install dependencies and start the local Supabase stack:
+
 ```bash
 npm install
+npx supabase start
+```
+
+Copy `.env.example` to `.env.local` and fill in the local public API URL and publishable key reported by `npx supabase status`. Never add a secret key or service-role key to a `VITE_` variable.
+
+```bash
 npm run dev
 ```
 
-Open `http://localhost:5173`. The component gallery is available at `http://localhost:5173/components`.
-
-The component gallery is registered only by the Vite development build. It is intentionally unavailable in production.
-
-Production preview:
-
-```bash
-npm run build
-npm run preview
-```
+Open `http://localhost:5173`. `/components` is available only in Vite development mode and is unavailable in production builds.
 
 ## Validation
+
+With local Supabase running:
 
 ```bash
 npm run lint
 npm run build
 npm run test:ui
+npm run lint:db
+npm run test:db
 ```
 
-Cloudflare Pages should use `npm run build` with `dist` as the output directory. `public/_redirects` provides the SPA fallback.
+`npm run test:ui` builds with Vite’s test mode and injects a test-only repository. The test adapter cannot be selected by a URL, query parameter, local-storage value, or production browser setting, and it is excluded from the production bundle.
 
-## MVP routes
+All database changes live in `supabase/migrations`. Validate a clean migration replay with:
 
-- `/` — temporary public entry
-- `/login` — authentication placeholder
-- `/learn` — redirects to the current course item
-- `/learn/:lessonId` — lesson or inline artifact assignment
+```bash
+npx supabase db reset
+```
+
+## Routes
+
+- `/` — temporary public product entry
+- `/login` — email magic-link sign-in and callback handling
+- `/learn` — protected redirect to the current course item
+- `/learn/:lessonId` — protected lesson or inline artifact assignment
 - `/components` — development-only component gallery
 
-The production application does not include dashboard, catalog, artifact-management, portfolio, certificate, community, search, notification, calendar, CMS, instructor portal, or admin routes.
+Authenticated users without an active `ai-creator-bootcamp` enrollment see the access-pending state. The production application has no dashboard, catalog, artifact-management, portfolio, certificate, community, search, notification, calendar, CMS, instructor portal, payment, or admin route.
 
-## MVP boundary
+## Content and persistence boundaries
 
-This release uses mock data and in-memory interaction state only. Completion and submission changes reset when the application reloads. It does not include Supabase, authentication, database schemas, Stripe, payments, enrollment, real student data, publishing workflows, or admin features. Environment keys in `.env.example` are placeholders for future work and are not consumed by the application.
+Course content remains in `src/content/ai-creator-bootcamp`. Each of the eight session modules exports exactly two lessons and one artifact assignment. Content modules never carry user progress, submissions, or instructor feedback.
 
-Course content lives in `src/content/ai-creator-bootcamp`. Each of the eight session modules exports exactly two lessons and one artifact assignment. The first interactive block is the accessible Context Window Packing Lab in Session 1; it runs entirely in the browser and makes no external requests.
+Supabase persists profiles, privileged enrollments, lesson completion, completed lab block IDs, submissions, review states, and instructor feedback. The Context Window Packing Lab remains deterministic and local during interaction; only its completed block ID is persisted after a correct answer.
 
-Read [docs/design-system.md](docs/design-system.md) before UI work and [docs/architecture.md](docs/architecture.md) before introducing new application boundaries.
+Components use the interfaces in `src/lib/services`. Raw Supabase records are mapped inside `src/lib/supabase` and do not reach pages or learning components.
+
+## Deployment
+
+Cloudflare Pages configuration:
+
+- Build command: `npm run build`
+- Output directory: `dist`
+- SPA fallback: `public/_redirects` → `/* /index.html 200`
+- Public environment variables: `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`
+
+Apply database migrations with the Supabase CLI rather than creating tables manually:
+
+```bash
+npx supabase link --project-ref your-project-ref
+npx supabase db push
+```
+
+In Supabase Auth URL Configuration, set the production site URL and allow the production `/login` callback URL. Configure a production SMTP provider before cohort launch so magic-link email delivery is reliable.
+
+Enrollment is intentionally privileged. After a student creates an account, a trusted operator must add the `(user_id, 'ai-creator-bootcamp', 'active')` enrollment through a controlled SQL or server-side workflow. The browser has no enrollment write permission.
+
+Read [docs/design-system.md](docs/design-system.md) before UI work and [docs/architecture.md](docs/architecture.md) before changing application boundaries.

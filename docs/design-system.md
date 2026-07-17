@@ -51,7 +51,7 @@ Green, clay, and violet are semantic, not decorative. Do not use green for gener
 ## Layout rules
 
 - Learning shell: collapsible 272px course navigator, sticky 64px top bar, and a focused content column capped at 896px.
-- The top bar contains only Artifact Academy branding, Session X of 8 progress, the profile placeholder, and the mobile lesson-outline control.
+- The top bar contains only Artifact Academy branding, Session X of 8 progress, the student profile/sign-out control, and the mobile lesson-outline control.
 - Tablet and mobile replace the persistent navigator with a keyboard-operable drawer.
 - Mobile at 390px uses one content column and stacked previous, complete, and next controls.
 - Preserve one obvious primary action per stage: complete the lesson, submit the artifact, or continue.

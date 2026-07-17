@@ -72,7 +72,6 @@ export const session01: LearningSession = {
       title: 'How context shapes an output',
       kind: 'lesson',
       durationMinutes: 9,
-      initiallyCompleted: true,
       blocks: [
         { id: 'context-output-video', type: 'video', title: 'How context shapes an output', durationMinutes: 9, status: 'available' },
         {
@@ -124,7 +123,6 @@ export const session01: LearningSession = {
       title: 'Packing a useful context window',
       kind: 'lesson',
       durationMinutes: 12,
-      initiallyCompleted: false,
       blocks: [
         { id: 'packing-video', type: 'video', title: 'Packing a useful context window', durationMinutes: 12, status: 'available' },
         {
@@ -176,7 +174,6 @@ export const session01: LearningSession = {
       title: 'Creator workflow map',
       kind: 'assignment',
       durationMinutes: 30,
-      initiallyCompleted: false,
       blocks: [
         { id: 'foundations-artifact-heading', type: 'heading', level: 2, text: 'Assignment brief' },
         {

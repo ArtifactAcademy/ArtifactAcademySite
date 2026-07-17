@@ -88,7 +88,7 @@ export function LearningWorkspacePage() {
       <LearningContent
         blocks={item.blocks}
         completedLabIds={completedLabIds}
-        onLabComplete={completeLab}
+        onLabComplete={(blockId) => completeLab(item.id, blockId)}
         onSubmit={(nextSubmission) => submitAssignment(item.id, nextSubmission)}
         submission={submission}
       />

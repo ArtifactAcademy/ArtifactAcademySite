@@ -1,7 +1,6 @@
 import type {
   LearningAssignmentItem,
   LearningSession,
-  LearningSubmission,
 } from '../types'
 
 interface StandardSessionInput {
@@ -10,8 +9,6 @@ interface StandardSessionInput {
   title: string
   lessonTitles: [string, string]
   artifactTitle: string
-  initiallyCompleted?: [boolean, boolean, boolean]
-  submission?: LearningSubmission
 }
 
 function slugify(value: string) {
@@ -24,8 +21,6 @@ export function createStandardSession({
   title,
   lessonTitles,
   artifactTitle,
-  initiallyCompleted = [false, false, false],
-  submission,
 }: StandardSessionInput): LearningSession {
   const lessons = lessonTitles.map((lessonTitle, index) => {
     const lessonId = slugify(lessonTitle)
@@ -38,7 +33,6 @@ export function createStandardSession({
       title: lessonTitle,
       kind: 'lesson' as const,
       durationMinutes: 10,
-      initiallyCompleted: initiallyCompleted[index] ?? false,
       blocks: [
         {
           id: `${lessonId}-video`,
@@ -104,7 +98,6 @@ export function createStandardSession({
     title: artifactTitle,
     kind: 'assignment',
     durationMinutes: 30,
-    initiallyCompleted: initiallyCompleted[2],
     blocks: [
       { id: `${artifactId}-heading`, type: 'heading', level: 2, text: 'Assignment brief' },
       {
@@ -135,7 +128,6 @@ export function createStandardSession({
           title: artifactTitle,
           description: `Complete the Session ${number} artifact and submit it here for instructor review.`,
           deliverables: ['A public or preview URL', 'A source repository URL', 'A short note for the instructor'],
-          ...(submission ? { submission } : {}),
         },
       },
     ],

@@ -22,7 +22,6 @@ export interface LearningAssignment {
   title: string
   description: string
   deliverables: string[]
-  submission?: LearningSubmission
 }
 
 interface ContentBlockBase {
@@ -129,7 +128,6 @@ interface LearningItemBase {
   position: number
   title: string
   durationMinutes: number
-  initiallyCompleted: boolean
   blocks: LearningContentBlock[]
 }
 

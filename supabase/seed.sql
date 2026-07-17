@@ -1,0 +1,3 @@
+-- Course content remains in src/content/ai-creator-bootcamp.
+-- Cohort enrollment is a privileged operation and is intentionally not seeded.
+-- Local database policy tests create isolated users and enrollments in transactions.

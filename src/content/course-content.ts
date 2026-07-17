@@ -9,10 +9,6 @@ export { learningCourse }
 
 export const learningItems = learningCourse.sessions.flatMap((session) => session.items)
 
-export const initialCompletedLearningItemIds = learningItems
-  .filter((item) => item.initiallyCompleted)
-  .map((item) => item.id)
-
 export function getLearningItem(itemId: string | undefined) {
   return learningItems.find((item) => item.id === itemId)
 }

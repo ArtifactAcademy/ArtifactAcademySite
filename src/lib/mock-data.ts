@@ -8,6 +8,9 @@ import type {
   CourseSession,
   Lesson,
   LiveSession,
+  LearningCourse,
+  LearningItem,
+  LearningSubmission,
   Session,
 } from './types'
 
@@ -179,4 +182,176 @@ export function getCourseLesson(lessonId: string | undefined) {
 
 export function getCourseSession(sessionId: string) {
   return courseSessions.find((session) => session.id === sessionId)
+}
+
+interface LearningSessionSeed {
+  id: string
+  title: string
+  lessonTitles: [string, string]
+  artifactTitle: string
+}
+
+const learningSessionSeeds: LearningSessionSeed[] = [
+  { id: 'foundations', title: 'Foundations of AI creation', lessonTitles: ['Mapping the creation process', 'Working with AI tools'], artifactTitle: 'Creator workflow map' },
+  { id: 'prompt-patterns', title: 'Prompt patterns', lessonTitles: ['Prompt anatomy', 'Testing and refining prompts'], artifactTitle: 'Prompt library' },
+  { id: 'references', title: 'Working with references', lessonTitles: ['Choosing useful references', 'Directing with constraints'], artifactTitle: 'Reference direction board' },
+  { id: 'components', title: 'Building with components', lessonTitles: ['Component thinking', 'Building your layout'], artifactTitle: 'Ship a landing section' },
+  { id: 'brand-systems', title: 'Brand systems', lessonTitles: ['Defining a visual direction', 'Applying repeatable rules'], artifactTitle: 'Brand system' },
+  { id: 'motion', title: 'Motion and interaction', lessonTitles: ['Motion with purpose', 'Interaction states'], artifactTitle: 'Interactive prototype' },
+  { id: 'shipping', title: 'Shipping and deployment', lessonTitles: ['Preparing a release', 'Deployment checks'], artifactTitle: 'Production release' },
+  { id: 'capstone', title: 'Capstone artifact', lessonTitles: ['Building the project story', 'Presenting your work'], artifactTitle: 'Capstone showcase' },
+]
+
+const seededSubmissions: Record<string, LearningSubmission> = {
+  'foundations-artifact': {
+    status: 'approved',
+    liveUrl: 'https://example.com/creator-workflow',
+    sourceUrl: 'https://github.com/jordan/creator-workflow',
+    note: 'Mapped the workflow and documented the key handoff.',
+    feedback: 'Clear sequence and strong decision points. Approved.',
+  },
+  'prompt-patterns-artifact': {
+    status: 'submitted',
+    liveUrl: 'https://example.com/prompt-library',
+    sourceUrl: 'https://github.com/jordan/prompt-library',
+    note: 'Included the prompts I use most and examples of each output.',
+  },
+  'references-artifact': {
+    status: 'needs-revision',
+    liveUrl: 'https://example.com/reference-board',
+    sourceUrl: 'https://github.com/jordan/reference-board',
+    note: 'Built three directions from the same product brief.',
+    feedback: 'The references are useful. Tighten the rationale for direction two and make the constraints more explicit, then resubmit.',
+  },
+}
+
+function makeLearningLesson(
+  seed: LearningSessionSeed,
+  sessionIndex: number,
+  title: string,
+  position: number,
+): LearningItem {
+  const id = slugify(title)
+  const isCurrentLesson = id === 'building-your-layout'
+  const initiallyCompleted = sessionIndex < 3 || (sessionIndex === 3 && position === 1)
+
+  return {
+    id,
+    sessionId: seed.id,
+    sessionNumber: sessionIndex + 1,
+    position,
+    title,
+    kind: 'lesson',
+    durationMinutes: isCurrentLesson ? 12 : 10,
+    initiallyCompleted,
+    videoStatus: id === 'motion-with-purpose' ? 'unavailable' : 'available',
+    objectives: isCurrentLesson
+      ? ['Translate a reference into a clear page hierarchy.', 'Compose the layout from reusable sections.', 'Prepare the result for the session artifact.']
+      : [`Explain how ${title.toLowerCase()} supports an AI-assisted workflow.`, 'Apply the idea to a focused practice step.', 'Capture one decision to reuse in the session artifact.'],
+    reading: isCurrentLesson
+      ? [
+          'Begin with the job the page needs to do, then give each section one clear responsibility. A strong layout is a sequence of decisions, not a collection of decorations.',
+          'Build with shared components and semantic tokens so the hierarchy remains consistent while the content changes. Review spacing, focus order, and the primary action before you add polish.',
+        ]
+      : [
+          `${title} is one part of the session workflow. Watch the walkthrough, then connect the principle to the artifact you will ship at the end of the session.`,
+          'Keep the practice small enough to review in one sitting. Record what worked, what changed, and the rule you would carry into another project.',
+        ],
+    prompts: [{
+      title: isCurrentLesson ? 'Layout critique prompt' : 'Practice prompt',
+      prompt: isCurrentLesson
+        ? 'Act as a senior product designer. Review this layout for hierarchy, reusable structure, accessibility, and clarity. Return three specific changes in priority order.'
+        : `Help me apply “${title}” to a small creator project. Give me three concrete steps and one question I should use to review the result.`,
+    }],
+    resources: [
+      {
+        id: `${id}-worksheet`,
+        title: isCurrentLesson ? 'Layout planning worksheet' : 'Session practice worksheet',
+        type: 'Worksheet',
+        description: 'A compact guide for capturing the decisions from this lesson.',
+      },
+      {
+        id: `${id}-template`,
+        title: isCurrentLesson ? 'Landing section starter' : 'Artifact starter template',
+        type: 'Template',
+        description: 'A mock downloadable resource for the cohort workflow.',
+      },
+    ],
+    instructorNote: isCurrentLesson
+      ? 'Make the CTA the clear focal point and keep the first pass intentionally small. You can refine the system after the hierarchy works.'
+      : 'Stay close to the learning objective and bring one concrete decision into the session artifact.',
+    outline: ['Lesson overview', 'Guided example', 'Practice step', 'Artifact connection'],
+  }
+}
+
+function makeLearningAssignment(seed: LearningSessionSeed, sessionIndex: number): LearningItem {
+  const id = `${seed.id}-artifact`
+  const submission = seededSubmissions[id]
+  return {
+    id,
+    sessionId: seed.id,
+    sessionNumber: sessionIndex + 1,
+    position: 3,
+    title: seed.artifactTitle,
+    kind: 'assignment',
+    durationMinutes: 30,
+    initiallyCompleted: sessionIndex < 3,
+    videoStatus: 'available',
+    objectives: [
+      `Ship a focused ${seed.artifactTitle.toLowerCase()}.`,
+      'Document the live result and source.',
+      'Use instructor feedback to make one clear revision.',
+    ],
+    reading: [
+      'Use the work from this session to produce one reviewable artifact. Keep the scope tight enough that the instructor can understand the intent, inspect the result, and respond with specific feedback.',
+    ],
+    prompts: [],
+    resources: [{
+      id: `${id}-brief`,
+      title: 'Artifact brief',
+      type: 'Guide',
+      description: 'Submission requirements and the review checklist for this artifact.',
+    }],
+    instructorNote: 'Submit a working link and source. A short note about the decision you want reviewed is more useful than a long project summary.',
+    outline: ['Review the brief', 'Build the artifact', 'Check the requirements', 'Submit for feedback'],
+    assignment: {
+      title: seed.artifactTitle,
+      description: `Complete the Session ${sessionIndex + 1} artifact and submit it here for instructor review.`,
+      deliverables: ['A public or preview URL', 'A source repository URL', 'A short note for the instructor'],
+      ...(submission ? { submission } : {}),
+    },
+  }
+}
+
+export const learningCourse: LearningCourse = {
+  id: 'ai-creator-bootcamp',
+  title: 'AI Creator Bootcamp',
+  instructor: 'Alireza Alampour',
+  organization: 'Artifact Academy',
+  sessions: learningSessionSeeds.map((seed, sessionIndex) => ({
+    id: seed.id,
+    number: sessionIndex + 1,
+    title: seed.title,
+    items: [
+      makeLearningLesson(seed, sessionIndex, seed.lessonTitles[0], 1),
+      makeLearningLesson(seed, sessionIndex, seed.lessonTitles[1], 2),
+      makeLearningAssignment(seed, sessionIndex),
+    ],
+  })),
+}
+
+export const learningItems = learningCourse.sessions.flatMap((session) => session.items)
+
+export const initialCompletedLearningItemIds = learningItems
+  .filter((item) => item.initiallyCompleted)
+  .map((item) => item.id)
+
+export function getLearningItem(itemId: string | undefined) {
+  return learningItems.find((item) => item.id === itemId)
+}
+
+export function getLearningItemState(itemId: string, completedIds: ReadonlySet<string>) {
+  if (completedIds.has(itemId)) return 'completed' as const
+  const firstIncompleteItem = learningItems.find((item) => !completedIds.has(item.id))
+  return firstIncompleteItem?.id === itemId ? 'current' as const : 'locked' as const
 }

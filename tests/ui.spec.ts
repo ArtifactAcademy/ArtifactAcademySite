@@ -21,159 +21,147 @@ async function expectNoHorizontalOverflow(page: Page) {
 }
 
 for (const viewport of viewports) {
-  test(`dashboard at ${viewport.width}px`, async ({ page }, testInfo) => {
-    const runtimeErrors = collectRuntimeErrors(page)
-
-    await page.setViewportSize({ width: viewport.width, height: viewport.height })
-    await page.goto('/dashboard')
-    await expect(page.getByRole('heading', { name: 'Good evening, Jordan.' })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Resume lesson' })).toBeVisible()
-    await expectNoHorizontalOverflow(page)
-
-    await page.keyboard.press('Control+K')
-    await expect(page.getByRole('searchbox')).toBeFocused()
-
-    if (viewport.width < 1024) {
-      await expect(page.getByRole('navigation', { name: 'Mobile navigation' })).toBeVisible()
-      await expect(page.getByRole('navigation', { name: 'Primary navigation' })).toBeHidden()
-    } else {
-      await expect(page.getByRole('navigation', { name: 'Primary navigation' })).toBeVisible()
-      await expect(page.getByRole('navigation', { name: 'Mobile navigation' })).toBeHidden()
-    }
-
-    await page.screenshot({ path: testInfo.outputPath(`dashboard-${viewport.width}.png`), fullPage: true })
-    expect(runtimeErrors).toEqual([])
-  })
-
-  test(`course overview and lesson player at ${viewport.width}px`, async ({ page }, testInfo) => {
+  test(`learning workspace at ${viewport.name} width`, async ({ page }, testInfo) => {
     const runtimeErrors = collectRuntimeErrors(page)
     await page.setViewportSize({ width: viewport.width, height: viewport.height })
 
-    await page.goto('/courses/ai-creator-bootcamp')
-    await expect(page.getByRole('heading', { level: 1, name: 'AI Creator Bootcamp' })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Resume current lesson' })).toBeVisible()
-    await expect(page.getByText('8 instructor-led sessions', { exact: true })).toBeVisible()
-    await expectNoHorizontalOverflow(page)
-    await page.screenshot({ path: testInfo.outputPath(`course-overview-${viewport.width}.png`), fullPage: true })
-
-    await page.getByRole('button', { name: 'Resume current lesson' }).click()
-    await expect(page).toHaveURL(/\/courses\/ai-creator-bootcamp\/lessons\/building-with-components$/)
-    await expect(page.getByRole('heading', { level: 1, name: 'Building with Components' })).toBeVisible()
-    await expect(page.getByLabel('Building with Components video')).toBeVisible()
+    await page.goto('/learn')
+    await expect(page).toHaveURL(/\/learn\/building-your-layout$/)
+    await expect(page.getByRole('heading', { level: 1, name: 'Building your layout' })).toBeVisible()
+    await expect(page.getByLabel('Building your layout video')).toBeVisible()
+    await expect(page.getByText('Session 4 of 8', { exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Mark complete' })).toBeVisible()
     await expectNoHorizontalOverflow(page)
-    await page.screenshot({ path: testInfo.outputPath(`lesson-player-${viewport.width}.png`), fullPage: true })
 
+    if (viewport.width < 1024) {
+      await expect(page.getByRole('button', { name: 'Open lesson outline' })).toBeVisible()
+      await expect(page.getByRole('navigation', { name: 'Course navigator' })).toBeHidden()
+    } else {
+      await expect(page.getByRole('navigation', { name: 'Course navigator' })).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Open lesson outline' })).toBeHidden()
+    }
+
+    await page.screenshot({ path: testInfo.outputPath(`learning-workspace-${viewport.width}.png`), fullPage: true })
     expect(runtimeErrors).toEqual([])
   })
 }
 
-test('dashboard, course card, course overview, and lesson navigation are connected', async ({ page }) => {
+test('lesson completion unlocks the next inline artifact', async ({ page }) => {
   const runtimeErrors = collectRuntimeErrors(page)
   await page.setViewportSize({ width: 1440, height: 960 })
+  await page.goto('/learn/building-your-layout')
 
-  await page.goto('/dashboard')
-  await page.getByRole('button', { name: 'View course overview' }).click()
-  await expect(page).toHaveURL(/\/courses\/ai-creator-bootcamp$/)
-
-  await page.goto('/dashboard')
-  await page.getByRole('button', { name: 'Resume lesson' }).click()
-  await expect(page).toHaveURL(/\/lessons\/building-with-components$/)
-
-  await page.goto('/courses')
-  await page.getByRole('button', { name: 'Open AI Creator Bootcamp' }).click()
-  await expect(page).toHaveURL(/\/courses\/ai-creator-bootcamp$/)
-
-  await page.getByRole('button', { name: 'Resume current lesson' }).click()
-  await page.getByRole('button', { name: 'Previous lesson' }).click()
-  await expect(page).toHaveURL(/\/lessons\/what-makes-a-component$/)
-  await page.getByRole('button', { name: 'Next lesson' }).click()
-  await expect(page).toHaveURL(/\/lessons\/building-with-components$/)
-
-  expect(runtimeErrors).toEqual([])
-})
-
-test('direct route refreshes preserve overview and lesson pages', async ({ page }) => {
-  const runtimeErrors = collectRuntimeErrors(page)
-
-  await page.goto('/courses/ai-creator-bootcamp')
-  await page.reload()
-  await expect(page.getByRole('heading', { level: 1, name: 'AI Creator Bootcamp' })).toBeVisible()
-
-  await page.goto('/courses/ai-creator-bootcamp/lessons/building-with-components')
-  await page.reload()
-  await expect(page.getByRole('heading', { level: 1, name: 'Building with Components' })).toBeVisible()
-  await expect(page.getByText('Lesson reading', { exact: true })).toBeVisible()
-
-  expect(runtimeErrors).toEqual([])
-})
-
-test('locked lessons cannot open and direct locked routes show the guard', async ({ page }) => {
-  const runtimeErrors = collectRuntimeErrors(page)
-  await page.goto('/courses/ai-creator-bootcamp')
-
-  await page.getByRole('button', { name: /Session 5 · Data visualization/ }).click()
-  const lockedLesson = page.getByRole('button', { name: 'Choosing the right view, locked' })
-  await expect(lockedLesson).toBeVisible()
-  await expect(lockedLesson).toBeDisabled()
-  await expect(page).toHaveURL(/\/courses\/ai-creator-bootcamp$/)
-  await expect(page.getByText('No resources yet. Materials are added as this session unlocks.')).toBeVisible()
-
-  await page.goto('/courses/ai-creator-bootcamp/lessons/choosing-the-right-view')
-  await expect(page.getByRole('heading', { level: 1, name: 'Choosing the right view' })).toBeVisible()
-  await expect(page.getByText('Locked lesson', { exact: true })).toBeVisible()
-  await expect(page.getByLabel('Choosing the right view video')).toHaveCount(0)
-
-  expect(runtimeErrors).toEqual([])
-})
-
-test('mock completion, loading, unavailable video, and resource states render', async ({ page }) => {
-  const runtimeErrors = collectRuntimeErrors(page)
-
-  await page.goto('/courses/ai-creator-bootcamp?state=loading')
-  await expect(page.getByLabel('Loading course overview')).toBeVisible()
-  await expect(page.getByLabel('Loading content')).toHaveCount(3)
-
-  await page.goto('/courses/ai-creator-bootcamp')
-  await expect(page.getByText('No locked-session resources yet')).toBeVisible()
-  await expect(page.getByText('Not started', { exact: true })).toBeVisible()
-
-  await page.goto('/courses/ai-creator-bootcamp/lessons/composing-reusable-patterns')
-  await expect(page.getByText('Video unavailable', { exact: true })).toBeVisible()
-
-  await page.goto('/courses/ai-creator-bootcamp/lessons/building-with-components')
+  const nextButton = page.getByRole('button', { name: 'Next', exact: true })
+  await expect(nextButton).toBeDisabled()
   await page.getByRole('button', { name: 'Mark complete' }).click()
   await expect(page.getByRole('button', { name: 'Completed' })).toBeDisabled()
-  await expect(page.getByText('This mock completion resets when the page refreshes.')).toBeVisible()
+  await expect(nextButton).toBeEnabled()
+
+  await nextButton.click()
+  await expect(page).toHaveURL(/\/learn\/components-artifact$/)
+  await expect(page.getByRole('heading', { level: 1, name: 'Ship a landing section' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Ship a landing section', level: 2 })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Mark complete' })).toBeDisabled()
+
+  await page.getByLabel('Live artifact URL').fill('https://example.com/landing-section')
+  await page.getByLabel('Source URL').fill('https://github.com/jordan/landing-section')
+  await page.getByLabel('Note for your instructor').fill('Please review the hierarchy and CTA.')
+  await page.getByRole('button', { name: 'Submit artifact' }).click()
+  await expect(page.getByText('Submitted for review', { exact: true })).toBeVisible()
+  await expect(page.getByText('Submitted', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Submit artifact' })).toHaveCount(0)
+
+  await page.getByRole('button', { name: 'Previous' }).click()
+  await expect(page).toHaveURL(/\/learn\/building-your-layout$/)
+  await expect(page.getByRole('heading', { level: 1, name: 'Building your layout' })).toBeVisible()
+  expect(runtimeErrors).toEqual([])
+})
+
+test('direct lesson refresh and previous and next actions work', async ({ page }) => {
+  const runtimeErrors = collectRuntimeErrors(page)
+
+  await page.goto('/learn/building-your-layout')
   await page.reload()
-  await expect(page.getByRole('button', { name: 'Mark complete' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'Building your layout' })).toBeVisible()
+  await page.getByRole('button', { name: 'Previous' }).click()
+  await expect(page).toHaveURL(/\/learn\/component-thinking$/)
+  await page.getByRole('button', { name: 'Next', exact: true }).click()
+  await expect(page).toHaveURL(/\/learn\/building-your-layout$/)
 
   expect(runtimeErrors).toEqual([])
 })
 
-test('gallery, theme switch, and SPA routes', async ({ page }, testInfo) => {
+test('locked lessons remain guarded on direct routes and in the navigator', async ({ page }) => {
+  const runtimeErrors = collectRuntimeErrors(page)
+  await page.setViewportSize({ width: 1440, height: 960 })
+  await page.goto('/learn/defining-a-visual-direction')
+
+  await expect(page.getByText('Locked lesson', { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'Defining a visual direction' })).toBeVisible()
+  await expect(page.getByLabel('Defining a visual direction video')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Return to current lesson' })).toBeVisible()
+
+  await expect(page.getByRole('button', { name: 'Lesson 1 · Defining a visual direction, locked' })).toBeDisabled()
+  expect(runtimeErrors).toEqual([])
+})
+
+test('submitted, needs revision, and approved feedback states render inline', async ({ page }) => {
   const runtimeErrors = collectRuntimeErrors(page)
 
-  await page.setViewportSize({ width: 1440, height: 960 })
-  await page.goto('/components')
-  await expect(page.getByRole('heading', { name: 'Artifact Learning OS components' })).toBeVisible()
-  await expect(page.getByText('Dark product', { exact: true })).toBeVisible()
-  await expect(page.getByText('Light product', { exact: true })).toBeVisible()
-  await expect(page.getByText('Warm marketing', { exact: true })).toBeVisible()
-  const modeBackgrounds = await Promise.all(
-    ['Dark product', 'Light product', 'Warm marketing'].map((label) =>
-      page.getByText(label, { exact: true }).locator('..').locator('..').evaluate((element) => getComputedStyle(element).backgroundColor),
-    ),
-  )
-  expect(new Set(modeBackgrounds).size).toBe(3)
+  await page.goto('/learn/prompt-patterns-artifact')
+  await expect(page.getByText('Submitted for review', { exact: true })).toBeVisible()
+  await expect(page.getByText('Submitted', { exact: true })).toBeVisible()
+  await expectNoHorizontalOverflow(page)
 
-  await page.getByRole('button', { name: 'Switch to light mode' }).click()
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
-  await page.getByRole('button', { name: 'Switch to dark mode' }).click()
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
-  await page.screenshot({ path: testInfo.outputPath('component-gallery.png'), fullPage: true })
+  await page.goto('/learn/references-artifact')
+  await expect(page.getByText('Changes requested', { exact: true })).toBeVisible()
+  await expect(page.getByText('Needs revision', { exact: true })).toBeVisible()
+  await expect(page.getByText('Instructor feedback', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Resubmit artifact' })).toBeVisible()
+  await expectNoHorizontalOverflow(page)
 
-  await page.goto('/not-a-real-route')
-  await expect(page.getByRole('heading', { name: 'Page not found' })).toBeVisible()
+  await page.goto('/learn/foundations-artifact')
+  await expect(page.getByText('Artifact approved', { exact: true })).toBeVisible()
+  await expect(page.getByText('Approved', { exact: true })).toBeVisible()
+  await expect(page.getByText('Clear sequence and strong decision points. Approved.')).toBeVisible()
+  await expectNoHorizontalOverflow(page)
+
+  expect(runtimeErrors).toEqual([])
+})
+
+test('mobile outline and keyboard controls are operable', async ({ page }) => {
+  const runtimeErrors = collectRuntimeErrors(page)
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/learn')
+
+  const outlineButton = page.getByRole('button', { name: 'Open lesson outline' })
+  await outlineButton.focus()
+  await expect(outlineButton).toBeFocused()
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('dialog', { name: 'Lesson outline' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Close lesson outline' }).last()).toBeFocused()
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('dialog', { name: 'Lesson outline' })).toHaveCount(0)
+
+  await page.keyboard.press('Tab')
+  await expect(page.locator(':focus-visible')).toHaveCount(1)
+  await expectNoHorizontalOverflow(page)
+  expect(runtimeErrors).toEqual([])
+})
+
+test('public entry routes remain and removed product routes return 404', async ({ page }) => {
+  const runtimeErrors = collectRuntimeErrors(page)
+
+  await page.goto('/')
+  await expect(page.getByRole('heading', { name: 'Learn by shipping useful work.' })).toBeVisible()
+  await page.getByRole('link', { name: 'Log in' }).click()
+  await expect(page).toHaveURL(/\/login$/)
+  await expect(page.getByRole('heading', { name: 'Sign in is coming next.' })).toBeVisible()
+
+  for (const removedRoute of ['/dashboard', '/courses', '/artifacts', '/portfolio', '/certificate', '/community', '/components']) {
+    await page.goto(removedRoute)
+    await expect(page.getByRole('heading', { name: 'Page not found' })).toBeVisible()
+  }
+
   expect(runtimeErrors).toEqual([])
 })

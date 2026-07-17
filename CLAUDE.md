@@ -8,5 +8,8 @@ Read `docs/design-system.md` before UI work and `docs/architecture.md` before ch
 4. Never redesign approved components locally inside a page. Extend the shared implementation and document its state in `/components`.
 5. Test mobile and desktop at 390px, 768px, and 1440px, including keyboard focus and reduced motion.
 6. Never expose secrets or commit credentials. Treat all `VITE_` values as public.
-7. Do not add backend, authentication, payment, enrollment, real student data, or admin behavior during Milestone 0.
-8. Validate with `npm run lint` and `npm run build` before handoff.
+7. Keep production routes limited to `/`, `/login`, `/learn`, and `/learn/:lessonId`; `/components` is development-only.
+8. Do not add dashboards, catalogs, artifact management, portfolios, certificates, community, search, notifications, calendars, CMS, instructor portals, or admin surfaces.
+9. Keep learning content and mock feedback typed and separate from UI components.
+10. Do not add backend, authentication, payment, enrollment, or real student data to the first-cohort MVP.
+11. Validate with `npm run lint`, `npm run build`, and `npm run test:ui` before handoff.

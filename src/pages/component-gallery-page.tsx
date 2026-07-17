@@ -24,7 +24,7 @@ const previewAction = () => undefined
 
 export function ComponentGalleryPage() {
   return (
-    <div className="space-y-10">
+    <div className="mx-auto min-h-screen max-w-[1440px] space-y-10 bg-background px-4 py-8 text-foreground sm:px-6 lg:px-8">
       <div><p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ai">Development route</p><h1 className="mt-2 text-3xl font-semibold tracking-tight">Artifact Learning OS components</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-muted">Reusable patterns and semantic states for product surfaces. Green communicates progress, clay communicates people, and violet communicates AI assistance.</p></div>
       <GallerySection title="Modes"><div className="grid gap-4 md:grid-cols-3"><ModeCard label="Dark product" theme="dark" /><ModeCard label="Light product" theme="light" /><ModeCard label="Warm marketing" theme="light" mode="marketing" /></div></GallerySection>
       <GallerySection title="Actions and status"><div className="flex flex-wrap items-center gap-3 rounded-card border border-border bg-card p-5"><Button>Primary action</Button><Button variant="secondary">Secondary</Button><Button variant="outline">Outline</Button><Button variant="ghost">Ghost</Button><StatusBadge accent="success" dot>Completed</StatusBadge><StatusBadge accent="clay">Instructor</StatusBadge><StatusBadge accent="ai">AI-assisted</StatusBadge><StatusBadge accent="warning">Needs attention</StatusBadge></div></GallerySection>

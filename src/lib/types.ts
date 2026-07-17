@@ -104,3 +104,62 @@ export interface CourseResource {
   title: string
   type: string
 }
+
+export type LearningItemState = 'completed' | 'current' | 'locked'
+export type SubmissionStatus = 'submitted' | 'needs-revision' | 'approved'
+
+export interface LearningResource {
+  id: string
+  title: string
+  type: 'Guide' | 'Template' | 'Worksheet'
+  description: string
+}
+
+export interface LearningSubmission {
+  status: SubmissionStatus
+  liveUrl: string
+  sourceUrl: string
+  note: string
+  feedback?: string
+}
+
+export interface LearningAssignment {
+  title: string
+  description: string
+  deliverables: string[]
+  submission?: LearningSubmission
+}
+
+export interface LearningItem {
+  id: string
+  sessionId: string
+  sessionNumber: number
+  position: number
+  title: string
+  kind: 'lesson' | 'assignment'
+  durationMinutes: number
+  initiallyCompleted: boolean
+  videoStatus: VideoStatus
+  objectives: string[]
+  reading: string[]
+  prompts: LessonPrompt[]
+  resources: LearningResource[]
+  instructorNote: string
+  outline: string[]
+  assignment?: LearningAssignment
+}
+
+export interface LearningSession {
+  id: string
+  number: number
+  title: string
+  items: LearningItem[]
+}
+
+export interface LearningCourse {
+  id: string
+  title: string
+  instructor: string
+  organization: string
+  sessions: LearningSession[]
+}

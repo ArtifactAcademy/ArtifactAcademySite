@@ -10,5 +10,9 @@ Before any UI work, read `docs/design-system.md`. Before changing boundaries, ro
 - Test both mobile and desktop, including 390px, 768px, and 1440px layouts.
 - Preserve keyboard navigation, visible focus states, accessible labels, and reduced-motion behavior.
 - Never expose secrets, commit real credentials, or place server secrets in `VITE_` variables.
-- Keep Milestone 0 free of Supabase, authentication, databases, Stripe, payments, real enrollment, real student data, and admin features.
-- Run `npm run lint` and `npm run build` before committing.
+- Keep the first-cohort MVP focused on `/learn` and `/learn/:lessonId`.
+- Do not add dashboards, course catalogs, artifact management, portfolios, certificates, community, search, notifications, calendars, CMS, instructor portals, or admin features.
+- Keep course content and sample feedback in typed fixtures outside UI components.
+- Keep the MVP free of Supabase, authentication, databases, Stripe, payments, real enrollment, and real student data.
+- Register `/components` in development only and never include it in production navigation.
+- Run `npm run lint`, `npm run build`, and `npm run test:ui` before committing.

@@ -50,11 +50,12 @@ Green, clay, and violet are semantic, not decorative. Do not use green for gener
 
 ## Layout rules
 
-- Desktop shell: 248px sidebar, sticky 64px top bar, content width capped at 1440px.
-- Dashboard: primary content plus a 272px context rail at wide sizes. Internal content uses a 12-column grid with 8/4 emphasis.
-- Tablet: sidebar collapses; dashboard cards may retain the 8/4 grid when readable; mobile navigation remains available.
-- Mobile at 390px: one content column, full-width primary action, horizontally scrollable artifact cards, fixed bottom navigation, safe-area padding.
-- Preserve one obvious primary action per screen. On the dashboard it is **Resume lesson**.
+- Learning shell: collapsible 272px course navigator, sticky 64px top bar, and a focused content column capped at 896px.
+- The top bar contains only Artifact Academy branding, Session X of 8 progress, the profile placeholder, and the mobile lesson-outline control.
+- Tablet and mobile replace the persistent navigator with a keyboard-operable drawer.
+- Mobile at 390px uses one content column and stacked previous, complete, and next controls.
+- Preserve one obvious primary action per stage: complete the lesson, submit the artifact, or continue.
+- Do not add dashboard grids, context rails, bottom product navigation, search, notifications, or competing progress cards to the learning workspace.
 
 ## Components
 

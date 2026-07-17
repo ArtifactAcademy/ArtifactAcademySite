@@ -1,10 +1,14 @@
+import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router'
 import { LearningShell } from './components/layout/learning-shell'
-import { ComponentGalleryPage } from './pages/component-gallery-page'
 import { LearningIndexPage } from './pages/learning-index-page'
 import { LearningWorkspacePage } from './pages/learning-workspace-page'
 import { NotFoundPage } from './pages/not-found-page'
 import { PublicEntryPage } from './pages/public-entry-page'
+
+const DevelopmentComponentGallery = import.meta.env.DEV
+  ? lazy(() => import('./pages/component-gallery-page').then((module) => ({ default: module.ComponentGalleryPage })))
+  : null
 
 function App() {
   return (
@@ -15,7 +19,12 @@ function App() {
         <Route index element={<LearningIndexPage />} />
         <Route path=":lessonId" element={<LearningWorkspacePage />} />
       </Route>
-      {import.meta.env.DEV && <Route path="components" element={<ComponentGalleryPage />} />}
+      {DevelopmentComponentGallery && (
+        <Route
+          path="components"
+          element={<Suspense fallback={null}><DevelopmentComponentGallery /></Suspense>}
+        />
+      )}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )

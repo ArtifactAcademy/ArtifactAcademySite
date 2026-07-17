@@ -11,5 +11,7 @@ Read `docs/design-system.md` before UI work and `docs/architecture.md` before ch
 7. Keep production routes limited to `/`, `/login`, `/learn`, and `/learn/:lessonId`; `/components` is development-only.
 8. Do not add dashboards, catalogs, artifact management, portfolios, certificates, community, search, notifications, calendars, CMS, instructor portals, or admin surfaces.
 9. Keep learning content and mock feedback typed and separate from UI components.
-10. Do not add backend, authentication, payment, enrollment, or real student data to the first-cohort MVP.
-11. Validate with `npm run lint`, `npm run build`, and `npm run test:ui` before handoff.
+10. Preserve eight content modules with exactly two lessons and one artifact assignment per session.
+11. Render lesson content through the shared block renderer; interactive labs use deterministic local state and accessible non-drag controls.
+12. Do not add a CMS, Three.js, backend, authentication, payment, enrollment, or real student data to the first-cohort MVP.
+13. Validate with `npm run lint`, `npm run build`, and `npm run test:ui` before handoff.

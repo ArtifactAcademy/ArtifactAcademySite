@@ -59,7 +59,9 @@ Green, clay, and violet are semantic, not decorative. Do not use green for gener
 
 ## Components
 
-UI foundations live in `src/components/ui`, learning-specific patterns in `src/components/academy`, and shell/navigation in `src/components/layout`.
+UI foundations live in `src/components/ui`, learning-specific patterns in `src/components/academy`, typed lesson renderers in `src/components/learning-blocks`, interactive exercises in `src/components/labs`, and shell/navigation in `src/components/layout`.
+
+Interactive labs use the same semantic surfaces and controls as the learning workspace. AI violet identifies the lab boundary, green communicates correct/completed state, warning communicates harmful choices, and capacity uses the shared progress primitive. Every drag interaction must have a visible button alternative.
 
 Before adding a new component:
 

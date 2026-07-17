@@ -1,23 +1,19 @@
 import { useEffect } from 'react'
 import { ArrowLeft, LockKeyhole } from 'lucide-react'
 import { useNavigate, useOutletContext, useParams } from 'react-router'
-import { ArtifactSubmission } from '../components/academy/artifact-submission'
-import { InstructorCallout } from '../components/academy/instructor-callout'
 import { LearningControls } from '../components/academy/learning-controls'
-import { ObjectivesPanel } from '../components/academy/objectives-panel'
-import { PromptBlock } from '../components/academy/prompt-block'
-import { ResourceBlock } from '../components/academy/resource-block'
-import { VideoPlayer } from '../components/academy/video-player'
 import type { LearningShellContext } from '../components/layout/learning-shell'
+import { LearningContent } from '../components/learning-blocks/learning-content'
 import { Button } from '../components/ui/button'
 import { Card } from '../components/ui/card'
 import { StatusBadge } from '../components/ui/status-badge'
 import {
+  getArtifactAssignmentBlock,
+  getInteractiveLabBlocks,
   getLearningItem,
   getLearningItemState,
-  learningCourse,
   learningItems,
-} from '../lib/mock-data'
+} from '../content/course-content'
 import { NotFoundPage } from './not-found-page'
 
 export function LearningWorkspacePage() {
@@ -25,6 +21,8 @@ export function LearningWorkspacePage() {
   const navigate = useNavigate()
   const {
     completedIds,
+    completedLabIds,
+    completeLab,
     completeItem,
     currentItemId,
     submissions,
@@ -43,6 +41,8 @@ export function LearningWorkspacePage() {
   const nextItem = learningItems[itemIndex + 1]
   const itemState = getLearningItemState(item.id, completedIds)
   const submission = submissions[item.id]
+  const assignmentBlock = getArtifactAssignmentBlock(item)
+  const labBlocks = getInteractiveLabBlocks(item)
 
   if (itemState === 'locked') {
     return (
@@ -65,7 +65,8 @@ export function LearningWorkspacePage() {
 
   const nextState = nextItem ? getLearningItemState(nextItem.id, completedIds) : undefined
   const completed = itemState === 'completed'
-  const assignmentCanComplete = item.kind !== 'assignment' || submission?.status === 'approved'
+  const labsComplete = labBlocks.every((block) => completedLabIds.has(block.id))
+  const assignmentCanComplete = !assignmentBlock || submission?.status === 'approved'
 
   return (
     <article className="mx-auto w-full max-w-4xl space-y-6">
@@ -84,41 +85,16 @@ export function LearningWorkspacePage() {
         </p>
       </header>
 
-      {item.kind === 'lesson' && (
-        <VideoPlayer durationMinutes={item.durationMinutes} status={item.videoStatus} title={item.title} />
-      )}
-
-      <ObjectivesPanel objectives={item.objectives} />
-
-      <section aria-labelledby="lesson-content-heading" className="space-y-4">
-        <h2 className="text-lg font-semibold" id="lesson-content-heading">
-          {item.kind === 'assignment' ? 'Assignment brief' : 'Lesson content'}
-        </h2>
-        {item.reading.map((paragraph) => (
-          <p className="max-w-[68ch] text-sm leading-7 text-foreground" key={paragraph}>{paragraph}</p>
-        ))}
-      </section>
-
-      {item.prompts.map((prompt) => <PromptBlock key={prompt.title} prompt={prompt.prompt} title={prompt.title} />)}
-
-      <ResourceBlock resources={item.resources} />
-
-      <InstructorCallout
-        instructor={`${learningCourse.instructor} · ${learningCourse.organization}`}
-        message={item.instructorNote}
+      <LearningContent
+        blocks={item.blocks}
+        completedLabIds={completedLabIds}
+        onLabComplete={completeLab}
+        onSubmit={(nextSubmission) => submitAssignment(item.id, nextSubmission)}
+        submission={submission}
       />
 
-      {item.assignment && (
-        <ArtifactSubmission
-          assignment={item.assignment}
-          key={item.id}
-          onSubmit={(nextSubmission) => submitAssignment(item.id, nextSubmission)}
-          submission={submission}
-        />
-      )}
-
       <LearningControls
-        completeDisabled={!assignmentCanComplete}
+        completeDisabled={!assignmentCanComplete || !labsComplete}
         completed={completed}
         hasNext={Boolean(nextItem)}
         hasPrevious={Boolean(previousItem)}

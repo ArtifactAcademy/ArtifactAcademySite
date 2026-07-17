@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Check, Clock3, RotateCcw, Send } from 'lucide-react'
+import type { LearningAssignment, LearningSubmission, SubmissionStatus } from '../../content/types'
 import { cn } from '../../lib/cn'
-import type { LearningAssignment, LearningSubmission, SubmissionStatus } from '../../lib/types'
 import { Button } from '../ui/button'
 import { Card } from '../ui/card'
 import { StatusBadge } from '../ui/status-badge'

@@ -10,9 +10,9 @@ import {
   X,
 } from 'lucide-react'
 import { NavLink } from 'react-router'
+import { getLearningItemState, learningCourse } from '../../content/course-content'
+import type { LearningItem } from '../../content/types'
 import { cn } from '../../lib/cn'
-import { getLearningItemState, learningCourse } from '../../lib/mock-data'
-import type { LearningItem } from '../../lib/types'
 import { ProgressBar } from '../ui/progress-bar'
 
 interface CourseNavigatorProps {

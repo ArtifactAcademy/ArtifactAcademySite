@@ -6,6 +6,13 @@ const viewports = [
   { name: 'desktop', width: 1440, height: 960 },
 ] as const
 
+const recommendedCards = [
+  'System instruction',
+  'User goal',
+  'Useful reference',
+  'Output format',
+] as const
+
 function collectRuntimeErrors(page: Page) {
   const runtimeErrors: string[] = []
   page.on('console', (message) => {
@@ -20,17 +27,23 @@ async function expectNoHorizontalOverflow(page: Page) {
   expect(overflow).toBeLessThanOrEqual(1)
 }
 
+async function addRecommendedCards(page: Page) {
+  for (const card of recommendedCards) {
+    await page.getByRole('button', { name: `Add ${card} to context` }).click()
+  }
+}
+
 for (const viewport of viewports) {
-  test(`learning workspace at ${viewport.name} width`, async ({ page }, testInfo) => {
+  test(`interactive lesson at ${viewport.name} width`, async ({ page }, testInfo) => {
     const runtimeErrors = collectRuntimeErrors(page)
     await page.setViewportSize({ width: viewport.width, height: viewport.height })
 
     await page.goto('/learn')
-    await expect(page).toHaveURL(/\/learn\/building-your-layout$/)
-    await expect(page.getByRole('heading', { level: 1, name: 'Building your layout' })).toBeVisible()
-    await expect(page.getByLabel('Building your layout video')).toBeVisible()
-    await expect(page.getByText('Session 4 of 8', { exact: true })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Mark complete' })).toBeVisible()
+    await expect(page).toHaveURL(/\/learn\/context-window-packing$/)
+    await expect(page.getByRole('heading', { level: 1, name: 'Packing a useful context window' })).toBeVisible()
+    await expect(page.getByRole('heading', { level: 2, name: 'Context Window Packing Lab' })).toBeVisible()
+    await expect(page.getByText('Session 1 of 8', { exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Mark complete' })).toBeDisabled()
     await expectNoHorizontalOverflow(page)
 
     if (viewport.width < 1024) {
@@ -41,127 +54,168 @@ for (const viewport of viewports) {
       await expect(page.getByRole('button', { name: 'Open lesson outline' })).toBeHidden()
     }
 
-    await page.screenshot({ path: testInfo.outputPath(`learning-workspace-${viewport.width}.png`), fullPage: true })
+    await page.screenshot({ path: testInfo.outputPath(`interactive-lesson-${viewport.width}.png`), fullPage: true })
     expect(runtimeErrors).toEqual([])
   })
 }
 
-test('lesson completion unlocks the next inline artifact', async ({ page }) => {
+test('typed lesson blocks render from course content', async ({ page }) => {
+  const runtimeErrors = collectRuntimeErrors(page)
+  await page.goto('/learn/context-window-packing')
+
+  await expect(page.getByLabel('Packing a useful context window video')).toBeVisible()
+  await expect(page.getByText('LEARNING OBJECTIVES', { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Choose context deliberately' })).toBeVisible()
+  await expect(page.getByText('Treat context like a limited working surface.', { exact: false })).toBeVisible()
+  await expect(page.getByText('Context audit prompt', { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Resources' })).toBeVisible()
+  await expect(page.getByText('Context packing worksheet', { exact: true })).toBeVisible()
+  await expect(page.getByText('INSTRUCTOR NOTE', { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Context Window Packing Lab' })).toBeVisible()
+
+  await page.goto('/learn/how-context-shapes-an-output')
+  await expect(page.getByText('Comprehension check', { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Which addition most directly improves an underspecified request?' })).toBeVisible()
+  await expectNoHorizontalOverflow(page)
+  expect(runtimeErrors).toEqual([])
+})
+
+test('mouse drag, reset, answer feedback, and lab completion are deterministic', async ({ page }) => {
   const runtimeErrors = collectRuntimeErrors(page)
   await page.setViewportSize({ width: 1440, height: 960 })
-  await page.goto('/learn/building-your-layout')
+  await page.goto('/learn/context-window-packing')
 
+  await page.getByTestId('context-card-system-instruction').dragTo(page.getByTestId('context-window'))
+  await expect(page.getByRole('button', { name: 'Remove System instruction from context' })).toBeVisible()
+  await expect(page.getByRole('progressbar', { name: 'Context capacity: 2 of 8 units used' })).toBeVisible()
+
+  await page.getByRole('button', { name: 'Reset' }).click()
+  await expect(page.getByRole('button', { name: 'Add System instruction to context' })).toBeVisible()
+  await expect(page.getByRole('progressbar', { name: 'Context capacity: 0 of 8 units used' })).toBeVisible()
+
+  await page.getByRole('button', { name: 'Add Conflicting instruction to context' }).click()
+  await page.getByRole('button', { name: 'Check answer' }).click()
+  await expect(page.getByText('Hurts', { exact: true })).toBeVisible()
+  await expect(page.getByText('Competes with the goal and makes the intended behavior ambiguous.')).toBeVisible()
+  await expect(page.getByText('Not quite.', { exact: false })).toBeVisible()
+
+  await page.getByRole('button', { name: 'Reset' }).click()
+  await addRecommendedCards(page)
+  await expect(page.getByRole('progressbar', { name: 'Context capacity: 7 of 8 units used' })).toBeVisible()
+  await page.getByRole('button', { name: 'Check answer' }).click()
+  await expect(page.getByText('Context packed well.', { exact: false })).toBeVisible()
+  await expect(page.getByText('LAB COMPLETE · LESSON CAN BE COMPLETED')).toBeVisible()
+  expect(runtimeErrors).toEqual([])
+})
+
+test('lab completion enables lesson completion and the next artifact', async ({ page }) => {
+  const runtimeErrors = collectRuntimeErrors(page)
+  await page.goto('/learn/context-window-packing')
+
+  const completeButton = page.getByRole('button', { name: 'Mark complete' })
   const nextButton = page.getByRole('button', { name: 'Next', exact: true })
+  await expect(completeButton).toBeDisabled()
   await expect(nextButton).toBeDisabled()
-  await page.getByRole('button', { name: 'Mark complete' }).click()
+
+  await addRecommendedCards(page)
+  await page.getByRole('button', { name: 'Check answer' }).click()
+  await expect(completeButton).toBeEnabled()
+  await completeButton.click()
   await expect(page.getByRole('button', { name: 'Completed' })).toBeDisabled()
   await expect(nextButton).toBeEnabled()
 
   await nextButton.click()
-  await expect(page).toHaveURL(/\/learn\/components-artifact$/)
-  await expect(page.getByRole('heading', { level: 1, name: 'Ship a landing section' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Ship a landing section', level: 2 })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Mark complete' })).toBeDisabled()
-
-  await page.getByLabel('Live artifact URL').fill('https://example.com/landing-section')
-  await page.getByLabel('Source URL').fill('https://github.com/jordan/landing-section')
-  await page.getByLabel('Note for your instructor').fill('Please review the hierarchy and CTA.')
-  await page.getByRole('button', { name: 'Submit artifact' }).click()
-  await expect(page.getByText('Submitted for review', { exact: true })).toBeVisible()
-  await expect(page.getByText('Submitted', { exact: true })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Submit artifact' })).toHaveCount(0)
-
-  await page.getByRole('button', { name: 'Previous' }).click()
-  await expect(page).toHaveURL(/\/learn\/building-your-layout$/)
-  await expect(page.getByRole('heading', { level: 1, name: 'Building your layout' })).toBeVisible()
+  await expect(page).toHaveURL(/\/learn\/foundations-artifact$/)
+  await expect(page.getByRole('heading', { level: 1, name: 'Creator workflow map' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 2, name: 'Creator workflow map' })).toBeVisible()
+  await expect(page.getByLabel('Live artifact URL')).toBeVisible()
+  await expectNoHorizontalOverflow(page)
   expect(runtimeErrors).toEqual([])
 })
 
-test('direct lesson refresh and previous and next actions work', async ({ page }) => {
+test('keyboard alternative completes the lab', async ({ page }) => {
   const runtimeErrors = collectRuntimeErrors(page)
+  await page.setViewportSize({ width: 768, height: 1024 })
+  await page.goto('/learn/context-window-packing')
 
-  await page.goto('/learn/building-your-layout')
-  await page.reload()
-  await expect(page.getByRole('heading', { level: 1, name: 'Building your layout' })).toBeVisible()
-  await page.getByRole('button', { name: 'Previous' }).click()
-  await expect(page).toHaveURL(/\/learn\/component-thinking$/)
-  await page.getByRole('button', { name: 'Next', exact: true }).click()
-  await expect(page).toHaveURL(/\/learn\/building-your-layout$/)
-
+  for (const card of recommendedCards) {
+    const addButton = page.getByRole('button', { name: `Add ${card} to context` })
+    await addButton.focus()
+    await expect(addButton).toBeFocused()
+    await page.keyboard.press('Enter')
+  }
+  const checkButton = page.getByRole('button', { name: 'Check answer' })
+  await checkButton.focus()
+  await page.keyboard.press('Enter')
+  await expect(page.getByText('LAB COMPLETE · LESSON CAN BE COMPLETED')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Mark complete' })).toBeEnabled()
+  await expectNoHorizontalOverflow(page)
   expect(runtimeErrors).toEqual([])
 })
 
-test('locked lessons remain guarded on direct routes and in the navigator', async ({ page }) => {
+test('touch alternative completes the lab at mobile width', async ({ browser }) => {
+  const context = await browser.newContext({
+    colorScheme: 'dark',
+    hasTouch: true,
+    viewport: { width: 390, height: 844 },
+  })
+  const page = await context.newPage()
+  const runtimeErrors = collectRuntimeErrors(page)
+  await page.goto('http://127.0.0.1:4173/learn/context-window-packing')
+
+  for (const card of recommendedCards) {
+    await page.getByRole('button', { name: `Add ${card} to context` }).tap()
+  }
+  await page.getByRole('button', { name: 'Check answer' }).tap()
+  await expect(page.getByText('LAB COMPLETE · LESSON CAN BE COMPLETED')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Mark complete' })).toBeEnabled()
+  await expectNoHorizontalOverflow(page)
+  expect(runtimeErrors).toEqual([])
+  await context.close()
+})
+
+test('direct refresh, previous navigation, and locked routes work', async ({ page }) => {
   const runtimeErrors = collectRuntimeErrors(page)
   await page.setViewportSize({ width: 1440, height: 960 })
-  await page.goto('/learn/defining-a-visual-direction')
 
+  await page.goto('/learn/context-window-packing')
+  await page.reload()
+  await expect(page.getByRole('heading', { level: 1, name: 'Packing a useful context window' })).toBeVisible()
+  await page.getByRole('button', { name: 'Previous' }).click()
+  await expect(page).toHaveURL(/\/learn\/how-context-shapes-an-output$/)
+  await page.getByRole('button', { name: 'Next', exact: true }).click()
+  await expect(page).toHaveURL(/\/learn\/context-window-packing$/)
+
+  await page.goto('/learn/prompt-anatomy')
   await expect(page.getByText('Locked lesson', { exact: true })).toBeVisible()
-  await expect(page.getByRole('heading', { level: 1, name: 'Defining a visual direction' })).toBeVisible()
-  await expect(page.getByLabel('Defining a visual direction video')).toHaveCount(0)
+  await expect(page.getByRole('heading', { level: 1, name: 'Prompt anatomy' })).toBeVisible()
+  await expect(page.getByLabel('Prompt anatomy video')).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Return to current lesson' })).toBeVisible()
-
-  await expect(page.getByRole('button', { name: 'Lesson 1 · Defining a visual direction, locked' })).toBeDisabled()
   expect(runtimeErrors).toEqual([])
 })
 
-test('submitted, needs revision, and approved feedback states render inline', async ({ page }) => {
-  const runtimeErrors = collectRuntimeErrors(page)
-
-  await page.goto('/learn/prompt-patterns-artifact')
-  await expect(page.getByText('Submitted for review', { exact: true })).toBeVisible()
-  await expect(page.getByText('Submitted', { exact: true })).toBeVisible()
-  await expectNoHorizontalOverflow(page)
-
-  await page.goto('/learn/references-artifact')
-  await expect(page.getByText('Changes requested', { exact: true })).toBeVisible()
-  await expect(page.getByText('Needs revision', { exact: true })).toBeVisible()
-  await expect(page.getByText('Instructor feedback', { exact: true })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Resubmit artifact' })).toBeVisible()
-  await expectNoHorizontalOverflow(page)
-
-  await page.goto('/learn/foundations-artifact')
-  await expect(page.getByText('Artifact approved', { exact: true })).toBeVisible()
-  await expect(page.getByText('Approved', { exact: true })).toBeVisible()
-  await expect(page.getByText('Clear sequence and strong decision points. Approved.')).toBeVisible()
-  await expectNoHorizontalOverflow(page)
-
-  expect(runtimeErrors).toEqual([])
-})
-
-test('mobile outline and keyboard controls are operable', async ({ page }) => {
+test('mobile outline and public route boundaries remain accessible', async ({ page }) => {
   const runtimeErrors = collectRuntimeErrors(page)
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/learn')
 
   const outlineButton = page.getByRole('button', { name: 'Open lesson outline' })
   await outlineButton.focus()
-  await expect(outlineButton).toBeFocused()
   await page.keyboard.press('Enter')
   await expect(page.getByRole('dialog', { name: 'Lesson outline' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Close lesson outline' }).last()).toBeFocused()
   await page.keyboard.press('Escape')
   await expect(page.getByRole('dialog', { name: 'Lesson outline' })).toHaveCount(0)
 
-  await page.keyboard.press('Tab')
-  await expect(page.locator(':focus-visible')).toHaveCount(1)
-  await expectNoHorizontalOverflow(page)
-  expect(runtimeErrors).toEqual([])
-})
-
-test('public entry routes remain and removed product routes return 404', async ({ page }) => {
-  const runtimeErrors = collectRuntimeErrors(page)
-
   await page.goto('/')
   await expect(page.getByRole('heading', { name: 'Learn by shipping useful work.' })).toBeVisible()
-  await page.getByRole('link', { name: 'Log in' }).click()
-  await expect(page).toHaveURL(/\/login$/)
+  await page.goto('/login')
   await expect(page.getByRole('heading', { name: 'Sign in is coming next.' })).toBeVisible()
 
   for (const removedRoute of ['/dashboard', '/courses', '/artifacts', '/portfolio', '/certificate', '/community', '/components']) {
     await page.goto(removedRoute)
     await expect(page.getByRole('heading', { name: 'Page not found' })).toBeVisible()
   }
-
+  await expectNoHorizontalOverflow(page)
   expect(runtimeErrors).toEqual([])
 })

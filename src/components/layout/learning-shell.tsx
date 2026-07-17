@@ -1,26 +1,29 @@
 import { useMemo, useState } from 'react'
 import { Outlet, useLocation } from 'react-router'
 import {
+  getArtifactAssignmentBlock,
   getLearningItem,
   initialCompletedLearningItemIds,
   learningItems,
-} from '../../lib/mock-data'
-import type { LearningSubmission } from '../../lib/types'
+} from '../../content/course-content'
+import type { LearningSubmission } from '../../content/types'
 import { CourseNavigator } from './course-navigator'
 import { LearningTopBar } from './learning-top-bar'
 
 export interface LearningShellContext {
   completedIds: ReadonlySet<string>
+  completedLabIds: ReadonlySet<string>
   currentItemId: string
   submissions: Readonly<Record<string, LearningSubmission | undefined>>
   completeItem: (itemId: string) => void
+  completeLab: (blockId: string) => void
   submitAssignment: (itemId: string, submission: LearningSubmission) => void
 }
 
 const initialSubmissions = Object.fromEntries(
   learningItems
-    .filter((item) => item.assignment?.submission)
-    .map((item) => [item.id, item.assignment?.submission]),
+    .map((item) => [item.id, getArtifactAssignmentBlock(item)?.assignment.submission] as const)
+    .filter((entry): entry is readonly [string, LearningSubmission] => Boolean(entry[1])),
 )
 
 export function LearningShell() {
@@ -30,6 +33,7 @@ export function LearningShell() {
   const [completedIds, setCompletedIds] = useState<Set<string>>(
     () => new Set(initialCompletedLearningItemIds),
   )
+  const [completedLabIds, setCompletedLabIds] = useState<Set<string>>(() => new Set())
   const [submissions, setSubmissions] = useState<Record<string, LearningSubmission | undefined>>(
     initialSubmissions,
   )
@@ -42,15 +46,19 @@ export function LearningShell() {
 
   const context = useMemo<LearningShellContext>(() => ({
     completedIds,
+    completedLabIds,
     currentItemId,
     submissions,
     completeItem(itemId) {
       setCompletedIds((current) => new Set(current).add(itemId))
     },
+    completeLab(blockId) {
+      setCompletedLabIds((current) => new Set(current).add(blockId))
+    },
     submitAssignment(itemId, submission) {
       setSubmissions((current) => ({ ...current, [itemId]: submission }))
     },
-  }), [completedIds, currentItemId, submissions])
+  }), [completedIds, completedLabIds, currentItemId, submissions])
 
   return (
     <div className="min-h-screen bg-page text-foreground">

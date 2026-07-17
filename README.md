@@ -1,6 +1,6 @@
 # Artifact Academy
 
-First-cohort MVP for the Artifact Academy student product, internally named **Artifact Learning OS**. The application is a focused learning workspace for the eight-session AI Creator Bootcamp, backed by typed mock data.
+First-cohort MVP for the Artifact Academy student product, internally named **Artifact Learning OS**. The application is a focused learning workspace for the eight-session AI Creator Bootcamp, backed by typed course-content modules and deterministic local interactions.
 
 ## Stack
 
@@ -10,6 +10,7 @@ First-cohort MVP for the Artifact Academy student product, internally named **Ar
 - shadcn-compatible local components and Base UI primitives
 - Lucide icons
 - Locally bundled Geist variable fonts
+- Discriminated TypeScript lesson blocks rendered by a shared content engine
 
 ## Local development
 
@@ -52,5 +53,7 @@ The production application does not include dashboard, catalog, artifact-managem
 ## MVP boundary
 
 This release uses mock data and in-memory interaction state only. Completion and submission changes reset when the application reloads. It does not include Supabase, authentication, database schemas, Stripe, payments, enrollment, real student data, publishing workflows, or admin features. Environment keys in `.env.example` are placeholders for future work and are not consumed by the application.
+
+Course content lives in `src/content/ai-creator-bootcamp`. Each of the eight session modules exports exactly two lessons and one artifact assignment. The first interactive block is the accessible Context Window Packing Lab in Session 1; it runs entirely in the browser and makes no external requests.
 
 Read [docs/design-system.md](docs/design-system.md) before UI work and [docs/architecture.md](docs/architecture.md) before introducing new application boundaries.

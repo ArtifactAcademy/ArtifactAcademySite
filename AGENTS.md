@@ -12,7 +12,11 @@ Before any UI work, read `docs/design-system.md`. Before changing boundaries, ro
 - Never expose secrets, commit real credentials, or place server secrets in `VITE_` variables.
 - Keep the first-cohort MVP focused on `/learn` and `/learn/:lessonId`.
 - Do not add dashboards, course catalogs, artifact management, portfolios, certificates, community, search, notifications, calendars, CMS, instructor portals, or admin features.
-- Keep course content and sample feedback in typed fixtures outside UI components.
+- Keep course content and sample feedback in typed content modules outside UI components.
+- Keep AI Creator Bootcamp content in eight session modules, each with exactly two lessons and one artifact assignment.
+- Add lesson content through the shared discriminated block types and renderer; do not hard-code content markup in route pages.
+- Interactive labs must use the reusable lab boundary, deterministic local state, an `onComplete` event, and mouse, touch, and keyboard controls.
 - Keep the MVP free of Supabase, authentication, databases, Stripe, payments, real enrollment, and real student data.
+- Do not add a CMS or Three.js.
 - Register `/components` in development only and never include it in production navigation.
 - Run `npm run lint`, `npm run build`, and `npm run test:ui` before committing.

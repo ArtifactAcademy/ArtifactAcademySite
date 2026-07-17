@@ -1,5 +1,5 @@
 import { FileText, Layers3, PanelsTopLeft } from 'lucide-react'
-import type { LearningResource } from '../../lib/types'
+import type { LearningResource } from '../../content/types'
 import { Card } from '../ui/card'
 
 interface ResourceBlockProps {

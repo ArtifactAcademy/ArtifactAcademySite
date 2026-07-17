@@ -7,6 +7,7 @@ import { CourseHeader } from '../components/academy/course-header'
 import { CourseCard } from '../components/academy/course-card'
 import { CurriculumAccordion } from '../components/academy/curriculum-accordion'
 import { InstructorCallout } from '../components/academy/instructor-callout'
+import { InteractiveLabBlock } from '../components/labs/interactive-lab-block'
 import { LessonRow } from '../components/academy/lesson-row'
 import { MarkCompletePanel } from '../components/academy/mark-complete-panel'
 import { ObjectivesPanel } from '../components/academy/objectives-panel'
@@ -18,7 +19,8 @@ import { EmptyState } from '../components/ui/empty-state'
 import { LoadingSkeleton } from '../components/ui/loading-skeleton'
 import { ProgressBar } from '../components/ui/progress-bar'
 import { StatusBadge } from '../components/ui/status-badge'
-import { courseSessions, currentCourse, nextLessons, recentArtifacts, sessions } from '../lib/mock-data'
+import { contextWindowPackingLab } from '../content/ai-creator-bootcamp/session-01'
+import { courseSessions, currentCourse, nextLessons, recentArtifacts, sessions } from '../lib/component-gallery-data'
 
 const previewAction = () => undefined
 
@@ -33,6 +35,7 @@ export function ComponentGalleryPage() {
       <GallerySection title="Lesson player patterns"><div className="grid gap-5 lg:grid-cols-2"><ObjectivesPanel objectives={courseSessions[3]?.lessons[1]?.objectives ?? []} /><MarkCompletePanel completed={false} hasNextLesson onComplete={previewAction} /><div className="lg:col-span-2"><CodeBlock code={'export function Button() {\n  return <button>Continue</button>\n}'} filename="Button.tsx" language="tsx" /></div></div></GallerySection>
       <GallerySection title="Rows, stats, and artifacts"><div className="grid gap-5 md:grid-cols-3"><div className="rounded-card border border-border bg-card p-3 md:col-span-2">{nextLessons.map((lesson) => <LessonRow key={lesson.id} lesson={lesson} />)}</div><StatCard accent="success" helper="of 8 sessions" icon={Award} label="Sessions complete" value="3" />{recentArtifacts.map((artifact) => <ArtifactCard key={artifact.id} artifact={artifact} />)}<StatCard accent="ai" helper="this week" icon={Clock3} label="Learning time" value="4h 20m" /><StatCard accent="clay" helper="component state" icon={Layers3} label="Instructor notes" value="3" /></div></GallerySection>
       <GallerySection title="Guidance and prompt patterns"><div className="grid gap-5 lg:grid-cols-2"><InstructorCallout instructor="Alireza Alampour · Artifact Academy" message="Bring your component library draft to the next instructor-led session for review." /><PromptBlock title="AI critique prompt" prompt={'Review this interface for hierarchy, interaction clarity, and accessibility.\nReturn three specific improvements.'} /></div></GallerySection>
+      <GallerySection title="Interactive lab"><InteractiveLabBlock block={{ id: 'gallery-context-lab', type: 'interactive-lab', lab: 'context-window-packing', config: contextWindowPackingLab }} onComplete={previewAction} /></GallerySection>
       <GallerySection title="Empty and loading states"><div className="grid gap-5 md:grid-cols-2"><EmptyState actionLabel="Browse lessons" /><LoadingSkeleton /></div><div className="mt-5 max-w-md rounded-card border border-border bg-card p-5"><ProgressBar label="Course progress" showValue value={62} /></div></GallerySection>
     </div>
   )

@@ -1,28 +1,43 @@
-import { ArrowRight, Crown } from 'lucide-react'
-import { Link } from 'react-router'
+import { ArtifactShowcase } from '../components/marketing/artifact-showcase'
+import { CurriculumOverview } from '../components/marketing/curriculum-overview'
+import { FAQSection } from '../components/marketing/faq-section'
+import { HeroSection } from '../components/marketing/hero-section'
+import { HowItWorks } from '../components/marketing/how-it-works'
+import { InstructorSection } from '../components/marketing/instructor-section'
+import { InteractiveLearningPreview } from '../components/marketing/interactive-learning-preview'
+import { MarketingFooter } from '../components/marketing/marketing-footer'
+import { MarketingHeader } from '../components/marketing/marketing-header'
+import { OutcomeStrip } from '../components/marketing/outcome-strip'
+import { MarketingContainer, SectionHeading } from '../components/marketing/marketing-shared'
+import { WaitlistForm } from '../components/marketing/waitlist-form'
 
 export function PublicEntryPage() {
   return (
-    <main className="grid min-h-screen place-items-center bg-page px-5 py-10 text-foreground">
-      <div className="w-full max-w-lg rounded-card border border-border bg-card p-6 shadow-panel sm:p-8">
-        <span className="grid size-10 place-items-center rounded-control bg-primary text-primary-foreground">
-          <Crown aria-hidden="true" className="size-5" />
-        </span>
-        <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.12em] text-subtle">Artifact Academy</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-          Learn by shipping useful work.
-        </h1>
-        <p className="mt-3 text-sm leading-6 text-muted">
-          AI Creator Bootcamp is an eight-session learning path built around focused lessons,
-          practical artifacts, and direct instructor feedback.
-        </p>
-        <div className="mt-7 flex flex-wrap gap-3">
-          <Link className="inline-flex h-10 items-center gap-2 rounded-control bg-primary px-4 text-sm font-semibold text-primary-foreground" to="/learn">
-            Enter learning workspace <ArrowRight aria-hidden="true" className="size-4" />
-          </Link>
-          <Link className="inline-flex h-10 items-center rounded-control border border-border-strong px-4 text-sm font-semibold text-foreground hover:bg-card-secondary" to="/login">Log in</Link>
-        </div>
-      </div>
-    </main>
+    <div className="min-h-screen bg-background text-foreground" data-theme="dark">
+      <MarketingHeader />
+      <main>
+        <HeroSection />
+        <OutcomeStrip />
+        <ArtifactShowcase />
+        <HowItWorks />
+        <CurriculumOverview />
+        <InteractiveLearningPreview />
+        <InstructorSection />
+        <FAQSection />
+        <section className="bg-background py-14 sm:py-22" id="join">
+          <MarketingContainer>
+            <div className="marketing-cta mx-auto max-w-3xl rounded-card border border-border-strong bg-card px-5 py-9 text-center shadow-panel sm:px-10 sm:py-12">
+              <SectionHeading centered eyebrow="Join the founding cohort" title="Be first in line when doors open">
+                <p>Leave your email and we will share founding-cohort details as the course is finalized. No spam, no pressure.</p>
+              </SectionHeading>
+              <div className="mx-auto max-w-xl">
+                <WaitlistForm centered formId="footer-waitlist" source="landing-footer" />
+              </div>
+            </div>
+          </MarketingContainer>
+        </section>
+      </main>
+      <MarketingFooter />
+    </div>
   )
 }

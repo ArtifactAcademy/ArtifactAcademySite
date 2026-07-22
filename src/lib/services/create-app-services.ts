@@ -6,13 +6,19 @@ export async function createAppServices(): Promise<AppServices> {
     return createInMemoryAppServices()
   }
 
-  const [{ createSupabaseAuthService }, { createSupabaseLearningRepository }] = await Promise.all([
+  const [
+    { createSupabaseAuthService },
+    { createSupabaseLearningRepository },
+    { createSupabaseWaitlistService },
+  ] = await Promise.all([
     import('../supabase/auth'),
     import('../supabase/learning-repository'),
+    import('../supabase/waitlist'),
   ])
 
   return {
     auth: createSupabaseAuthService(),
     learning: createSupabaseLearningRepository(),
+    waitlist: createSupabaseWaitlistService(),
   }
 }

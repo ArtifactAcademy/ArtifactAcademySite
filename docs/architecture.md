@@ -24,6 +24,7 @@ src/
   pages/                        route-level composition and access states
 supabase/
   migrations/                   schema, functions, grants, and RLS policies
+  functions/join-waitlist/      server-only early-interest signup boundary
   tests/database/               pgTAP authorization tests
   seed.sql                      non-content local seed entrypoint
 ```
@@ -32,6 +33,7 @@ supabase/
 
 - `/` is the public product entry.
 - `/login` sends email magic links and handles the PKCE callback.
+- `/privacy` and `/terms` hold clearly marked starter legal notices for the marketing site.
 - `/learn` and `/learn/:lessonId` require an authenticated user and an active course enrollment.
 - Authenticated users without active enrollment see access pending.
 - `/components` is registered only when `import.meta.env.DEV` is true.
@@ -70,6 +72,7 @@ The public schema contains only the required tables:
 - `enrollments`
 - `lesson_progress`
 - `submissions`
+- `interest_signups`
 
 Every table has RLS enabled. Table grants, RLS policies, trusted helper functions, and a submission-protection trigger work together:
 
@@ -80,6 +83,7 @@ Every table has RLS enabled. Table grants, RLS policies, trusted helper function
 - only `needs_revision` submissions can be resubmitted by students;
 - students cannot write feedback, review timestamps, or approval state;
 - instructor access depends on a database-controlled profile role, never registration metadata.
+- anonymous and authenticated browser roles have no direct access to early-interest records; the Edge Function has insert-only access and treats duplicate emails as successful submissions.
 
 Lab and lesson completion functions perform narrow atomic writes under the caller’s permissions. No service-role or secret key is present in the client.
 

@@ -23,6 +23,15 @@ interface TestHarness {
       feedback?: string
     },
   ) => void
+  setWaitlistResult: (result: 'success' | 'server-error') => void
+  waitlistSnapshot: () => Array<{
+    email: string
+    source?: 'landing-hero' | 'landing-footer'
+    utmSource?: string
+    utmMedium?: string
+    utmCampaign?: string
+    website?: string
+  }>
   snapshot: (user: TestUser) => {
     progress: {
       completedItemIds: string[]
@@ -92,6 +101,151 @@ async function addRecommendedCards(page: Page, keyboard = false) {
       await button.click()
     }
   }
+}
+
+function heroWaitlistForm(page: Page) {
+  return page.getByRole('form', { name: 'Join the founding cohort' }).first()
+}
+
+test('the production landing page is available at the public root', async ({ page }) => {
+  const runtimeErrors = collectRuntimeErrors(page)
+  await resetTestState(page)
+
+  await expect(page).toHaveTitle('Artifact Academy · AI Creator Bootcamp')
+  await expect(page.getByRole('heading', { level: 1, name: /Build with AI\. Leave with proof\./ })).toBeVisible()
+  await expect(page.getByText('AI Creator Bootcamp · early interest open')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Alireza Alampour' })).toBeVisible()
+  await expectNoHorizontalOverflow(page)
+  expect(runtimeErrors).toEqual([])
+})
+
+test('the marketing header student-login link preserves the login route', async ({ page }) => {
+  await resetTestState(page)
+
+  const loginLink = page.getByRole('link', { name: 'Student login' }).first()
+  await expect(loginLink).toHaveAttribute('href', '/login')
+  await loginLink.click()
+  await expect(page).toHaveURL(/\/login$/)
+  await expect(page.getByRole('heading', { name: 'Sign in to keep learning.' })).toBeVisible()
+})
+
+test('privacy and terms routes are clearly marked editable starters', async ({ page }) => {
+  await resetTestState(page)
+
+  for (const route of ['/privacy', '/terms']) {
+    await page.goto(route)
+    await expect(page.getByText('Editable legal placeholder')).toBeVisible()
+    await expect(page.getByText('Not legal advice. This content still requires review and approval.')).toBeVisible()
+  }
+})
+
+test('the waitlist form reports invalid email without making a signup', async ({ page }) => {
+  await resetTestState(page)
+  const form = heroWaitlistForm(page)
+
+  await form.getByLabel('Email address').fill('not-an-email')
+  await form.getByRole('button', { name: 'Join the founding cohort' }).click()
+
+  await expect(form.getByText('Please enter a valid email address.')).toBeVisible()
+  await expect(form.getByLabel('Email address')).toHaveAttribute('aria-invalid', 'true')
+  expect(await page.evaluate(() => window.__ARTIFACT_ACADEMY_TEST__.waitlistSnapshot())).toEqual([])
+})
+
+test('a valid early-interest signup reaches the waitlist service', async ({ page }) => {
+  const runtimeErrors = collectRuntimeErrors(page)
+  await resetTestState(page)
+  const form = heroWaitlistForm(page)
+
+  await form.getByLabel('Email address').fill('Creator@Example.com')
+  await form.getByRole('button', { name: 'Join the founding cohort' }).click()
+
+  await expect(form.getByText('You’re on the list.')).toBeVisible()
+  const signups = await page.evaluate(() => window.__ARTIFACT_ACADEMY_TEST__.waitlistSnapshot())
+  expect(signups).toHaveLength(1)
+  expect(signups[0]).toMatchObject({ email: 'creator@example.com', source: 'landing-hero' })
+  expect(runtimeErrors).toEqual([])
+})
+
+test('a duplicate signup is treated as success without a second record', async ({ page }) => {
+  await resetTestState(page)
+  let form = heroWaitlistForm(page)
+  await form.getByLabel('Email address').fill('duplicate@example.com')
+  await form.getByRole('button', { name: 'Join the founding cohort' }).click()
+  await expect(form.getByText('You’re on the list.')).toBeVisible()
+
+  await page.reload()
+  form = heroWaitlistForm(page)
+  await form.getByLabel('Email address').fill('DUPLICATE@example.com')
+  await form.getByRole('button', { name: 'Join the founding cohort' }).click()
+  await expect(form.getByText('You’re on the list.')).toBeVisible()
+
+  const signups = await page.evaluate(() => window.__ARTIFACT_ACADEMY_TEST__.waitlistSnapshot())
+  expect(signups).toHaveLength(1)
+})
+
+test('a waitlist server failure remains retryable', async ({ page }) => {
+  await resetTestState(page)
+  await page.evaluate(() => window.__ARTIFACT_ACADEMY_TEST__.setWaitlistResult('server-error'))
+  const form = heroWaitlistForm(page)
+
+  await form.getByLabel('Email address').fill('retry@example.com')
+  await form.getByRole('button', { name: 'Join the founding cohort' }).click()
+  await expect(form.getByText('Something went wrong on our end. Please try again.')).toBeVisible()
+  await expect(form.getByRole('button', { name: 'Join the founding cohort' })).toBeEnabled()
+
+  await page.evaluate(() => window.__ARTIFACT_ACADEMY_TEST__.setWaitlistResult('success'))
+  await form.getByRole('button', { name: 'Join the founding cohort' }).click()
+  await expect(form.getByText('You’re on the list.')).toBeVisible()
+})
+
+test('the waitlist form submits from the keyboard', async ({ page }) => {
+  await resetTestState(page)
+  const form = heroWaitlistForm(page)
+  const email = form.getByLabel('Email address')
+
+  await email.fill('keyboard@example.com')
+  await email.focus()
+  await page.keyboard.press('Enter')
+
+  await expect(form.getByText('You’re on the list.')).toBeVisible()
+  expect(await page.evaluate(() => window.__ARTIFACT_ACADEMY_TEST__.waitlistSnapshot())).toHaveLength(1)
+})
+
+test('the waitlist captures allowed UTM values from the landing URL', async ({ page }) => {
+  await page.goto('/?utm_source=launch-newsletter&utm_medium=email&utm_campaign=founding-cohort')
+  await page.evaluate(() => window.__ARTIFACT_ACADEMY_TEST__.reset())
+  const form = heroWaitlistForm(page)
+
+  await form.getByLabel('Email address').fill('utm@example.com')
+  await form.getByRole('button', { name: 'Join the founding cohort' }).click()
+  await expect(form.getByText('You’re on the list.')).toBeVisible()
+
+  const [signup] = await page.evaluate(() => window.__ARTIFACT_ACADEMY_TEST__.waitlistSnapshot())
+  expect(signup).toMatchObject({
+    utmSource: 'launch-newsletter',
+    utmMedium: 'email',
+    utmCampaign: 'founding-cohort',
+  })
+})
+
+for (const viewport of [
+  { name: 'mobile', width: 390, height: 844 },
+  { name: 'tablet', width: 768, height: 1024 },
+  { name: 'desktop', width: 1440, height: 960 },
+] as const) {
+  test(`the landing page has no errors or overflow at ${viewport.name} width`, async ({ page }) => {
+    const runtimeErrors = collectRuntimeErrors(page)
+    await page.setViewportSize({ width: viewport.width, height: viewport.height })
+    await resetTestState(page)
+
+    await expect(page.getByRole('heading', { level: 1, name: /Build with AI/ })).toBeVisible()
+    await expectNoHorizontalOverflow(page)
+    if (viewport.name === 'mobile') {
+      await expect(page.getByRole('navigation', { name: 'Landing page' })).toBeHidden()
+      await expect(page.locator('header').getByRole('link', { name: 'Student login' })).toBeHidden()
+    }
+    expect(runtimeErrors).toEqual([])
+  })
 }
 
 test('signed-out students are redirected to the magic-link login', async ({ page }) => {

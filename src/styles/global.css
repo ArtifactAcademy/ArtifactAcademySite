@@ -40,6 +40,23 @@ html {
   background: var(--ds-page);
 }
 
+.marketing-hero {
+  background:
+    radial-gradient(circle at 85% 0%, var(--ds-clay-soft), transparent 48%),
+    var(--ds-bg);
+}
+
+.marketing-cta {
+  background:
+    radial-gradient(circle at 50% 0%, var(--ds-clay-soft), transparent 60%),
+    var(--ds-surface);
+}
+
+.context-preview-progress {
+  width: 85.333%;
+  background: linear-gradient(90deg, var(--ds-success), var(--ds-ai));
+}
+
 body {
   margin: 0;
   min-width: 320px;

@@ -44,7 +44,21 @@ export interface LearningRepository {
   ) => Promise<LearningSubmission>
 }
 
+export interface WaitlistSignupInput {
+  email: string
+  source?: 'landing-hero' | 'landing-footer'
+  utmSource?: string
+  utmMedium?: string
+  utmCampaign?: string
+  website?: string
+}
+
+export interface WaitlistService {
+  join: (signup: WaitlistSignupInput) => Promise<void>
+}
+
 export interface AppServices {
   auth: AuthService
   learning: LearningRepository
+  waitlist: WaitlistService
 }

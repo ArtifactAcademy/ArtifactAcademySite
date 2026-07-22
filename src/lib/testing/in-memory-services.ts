@@ -3,6 +3,7 @@ import type {
   AppServices,
   AuthUser,
   StudentCourseState,
+  WaitlistSignupInput,
 } from '../services/types'
 
 type TestUserKey = 'enrolled' | 'unenrolled' | 'student-b'
@@ -24,6 +25,8 @@ interface TestStore {
   currentUserKey: TestUserKey | null
   magicLinkEmail: string | null
   students: Record<TestUserKey, TestStudent>
+  waitlistResult: 'success' | 'server-error'
+  waitlistSignups: WaitlistSignupInput[]
 }
 
 export interface ArtifactAcademyTestHarness {
@@ -39,7 +42,9 @@ export interface ArtifactAcademyTestHarness {
     assignmentId: string,
     submission: LearningSubmission,
   ) => void
+  setWaitlistResult: (result: TestStore['waitlistResult']) => void
   snapshot: (user: TestUserKey) => TestStudent
+  waitlistSnapshot: () => WaitlistSignupInput[]
 }
 
 declare global {
@@ -54,6 +59,8 @@ function createInitialStore(): TestStore {
   return {
     currentUserKey: null,
     magicLinkEmail: null,
+    waitlistResult: 'success',
+    waitlistSignups: [],
     students: {
       enrolled: {
         user: { id: '00000000-0000-0000-0000-000000000001', email: 'jordan@example.com' },
@@ -197,6 +204,20 @@ export function createInMemoryAppServices(): AppServices {
         return Promise.resolve(structuredClone(nextSubmission))
       },
     },
+    waitlist: {
+      join(signup) {
+        if (store.waitlistResult === 'server-error') {
+          return Promise.reject(new Error('Waitlist signup is temporarily unavailable.'))
+        }
+
+        const normalizedEmail = signup.email.trim().toLowerCase()
+        if (!store.waitlistSignups.some((item) => item.email === normalizedEmail)) {
+          store.waitlistSignups.push({ ...structuredClone(signup), email: normalizedEmail })
+          persist()
+        }
+        return Promise.resolve()
+      },
+    },
   }
 
   window.__ARTIFACT_ACADEMY_TEST__ = {
@@ -231,8 +252,15 @@ export function createInMemoryAppServices(): AppServices {
       store.students[user].submissions[assignmentId] = structuredClone(submission)
       persist()
     },
+    setWaitlistResult(result) {
+      store.waitlistResult = result
+      persist()
+    },
     snapshot(user) {
       return cloneStudent(store.students[user])
+    },
+    waitlistSnapshot() {
+      return structuredClone(store.waitlistSignups)
     },
   }
 

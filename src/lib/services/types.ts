@@ -62,3 +62,10 @@ export interface AppServices {
   learning: LearningRepository
   waitlist: WaitlistService
 }
+
+export type ProtectedServices = Pick<AppServices, 'auth' | 'learning'>
+
+export interface AppServiceBootstrap {
+  waitlist: WaitlistService
+  loadProtectedServices: () => Promise<ProtectedServices>
+}

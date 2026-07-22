@@ -38,23 +38,118 @@
 html {
   min-width: 320px;
   background: var(--ds-page);
+  scroll-behavior: smooth;
 }
 
 .marketing-hero {
   background:
-    radial-gradient(circle at 85% 0%, var(--ds-clay-soft), transparent 48%),
+    radial-gradient(circle at 78% 28%, var(--ds-ai-soft), transparent 34%),
+    radial-gradient(circle at 88% 70%, var(--ds-clay-soft), transparent 30%),
     var(--ds-bg);
+}
+
+.marketing-hero-placeholder {
+  background:
+    radial-gradient(circle at 72% 35%, var(--ds-elevated), transparent 20%),
+    radial-gradient(circle at 85% 60%, var(--ds-ai-soft), transparent 27%),
+    radial-gradient(circle at 92% 18%, var(--ds-clay-soft), transparent 23%),
+    var(--ds-bg);
+}
+
+.marketing-hero-placeholder::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  opacity: 0.09;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.75'/%3E%3C/svg%3E");
+}
+
+.artifact-silhouette {
+  position: absolute;
+  display: block;
+  border: 1px solid var(--ds-border-strong);
+  background: color-mix(in oklch, var(--ds-surface) 64%, transparent);
+  box-shadow: var(--ds-shadow-2);
+}
+
+.artifact-silhouette-one {
+  top: 19%;
+  right: 12%;
+  width: min(38vw, 34rem);
+  aspect-ratio: 16 / 10;
+  transform: rotate(-2deg);
+}
+
+.artifact-silhouette-two {
+  right: 5%;
+  bottom: 13%;
+  width: min(27vw, 25rem);
+  aspect-ratio: 4 / 3;
+  transform: rotate(3deg);
+}
+
+.artifact-silhouette-three {
+  top: 24%;
+  right: 45%;
+  width: min(19vw, 16rem);
+  aspect-ratio: 3 / 4;
+  transform: rotate(2deg);
+}
+
+.marketing-hero-media {
+  object-position: 68% center;
+}
+
+.marketing-hero-scrim {
+  background:
+    linear-gradient(90deg, oklch(0.115 0.004 285 / 0.97) 0%, oklch(0.115 0.004 285 / 0.88) 48%, oklch(0.115 0.004 285 / 0.26) 84%),
+    linear-gradient(0deg, oklch(0.115 0.004 285 / 0.7) 0%, transparent 42%);
+}
+
+.marketing-page[data-theme='light'] .marketing-hero-scrim {
+  background:
+    linear-gradient(90deg, oklch(0.975 0.009 78 / 0.98) 0%, oklch(0.975 0.009 78 / 0.9) 48%, oklch(0.975 0.009 78 / 0.2) 84%),
+    linear-gradient(0deg, oklch(0.975 0.009 78 / 0.72) 0%, transparent 42%);
+}
+
+.marketing-hero-copy {
+  animation: marketing-hero-enter 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .marketing-cta {
   background:
-    radial-gradient(circle at 50% 0%, var(--ds-clay-soft), transparent 60%),
+    radial-gradient(circle at 24% 16%, var(--ds-clay-soft), transparent 32%),
+    radial-gradient(circle at 82% 76%, var(--ds-ai-soft), transparent 28%),
     var(--ds-surface);
 }
 
-.context-preview-progress {
-  width: 85.333%;
-  background: linear-gradient(90deg, var(--ds-success), var(--ds-ai));
+.marketing-product-frame {
+  box-shadow:
+    0 40px 120px color-mix(in oklch, var(--ds-ai) 10%, transparent),
+    var(--ds-shadow-2);
+}
+
+@keyframes marketing-hero-enter {
+  from { opacity: 0; transform: translateY(1.5rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes marketing-reveal {
+  from { opacity: 0.35; transform: translateY(2rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@supports (animation-timeline: view()) {
+  .marketing-reveal {
+    animation: marketing-reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 8% cover 26%;
+  }
+}
+
+@media (min-width: 768px) {
+  .marketing-hero-media { object-position: right center; }
 }
 
 body {

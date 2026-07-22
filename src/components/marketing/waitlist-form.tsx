@@ -3,7 +3,7 @@ import { useMemo, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import { cn } from '../../lib/cn'
 import type { WaitlistSignupInput } from '../../lib/services/types'
-import { useServices } from '../../lib/services/use-services'
+import { useWaitlistService } from '../../lib/services/use-waitlist-service'
 import { Button } from '../ui/button'
 
 type FormStatus = 'idle' | 'invalid' | 'submitting' | 'success' | 'server-error'
@@ -29,12 +29,14 @@ export function WaitlistForm({
   formId,
   source,
   centered = false,
+  variant = 'default',
 }: {
   formId: string
   source: NonNullable<WaitlistSignupInput['source']>
   centered?: boolean
+  variant?: 'default' | 'hero'
 }) {
-  const { waitlist } = useServices()
+  const waitlist = useWaitlistService()
   const [email, setEmail] = useState('')
   const [website, setWebsite] = useState('')
   const [status, setStatus] = useState<FormStatus>('idle')
@@ -102,7 +104,8 @@ export function WaitlistForm({
             aria-invalid={status === 'invalid'}
             autoComplete="email"
             className={cn(
-              'h-12 w-full rounded-control border bg-card px-4 text-[15px] text-foreground placeholder:text-subtle disabled:cursor-not-allowed disabled:opacity-60',
+              'w-full rounded-control border bg-card px-4 text-[15px] text-foreground placeholder:text-subtle disabled:cursor-not-allowed disabled:opacity-60',
+              variant === 'hero' ? 'h-14 bg-background/80 backdrop-blur-md' : 'h-12',
               status === 'invalid' ? 'border-error' : 'border-border-strong',
             )}
             disabled={disabled}
@@ -116,7 +119,7 @@ export function WaitlistForm({
             value={email}
           />
         </div>
-        <Button className="shrink-0 sm:min-w-48" disabled={disabled} size="lg" type="submit">
+        <Button className={cn('shrink-0 sm:min-w-48', variant === 'hero' && 'h-14')} disabled={disabled} size="lg" type="submit">
           {status === 'submitting' && <LoaderCircle aria-hidden="true" className="size-4 animate-spin motion-reduce:animate-none" />}
           {status === 'submitting' ? 'Joining…' : status === 'success' ? 'Joined' : 'Join the founding cohort'}
         </Button>

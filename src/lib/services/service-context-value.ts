@@ -1,4 +1,4 @@
 import { createContext } from 'react'
-import type { AppServices } from './types'
+import type { ProtectedServices } from './types'
 
-export const ServiceContext = createContext<AppServices | null>(null)
+export const ServiceContext = createContext<ProtectedServices | null>(null)

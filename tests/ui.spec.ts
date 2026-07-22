@@ -113,10 +113,37 @@ test('the production landing page is available at the public root', async ({ pag
 
   await expect(page).toHaveTitle('Artifact Academy · AI Creator Bootcamp')
   await expect(page.getByRole('heading', { level: 1, name: /Build with AI\. Leave with proof\./ })).toBeVisible()
-  await expect(page.getByText('AI Creator Bootcamp · early interest open')).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Alireza Alampour' })).toBeVisible()
+  await expect(page.getByText('Practical AI education')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Work that exists beyond the lesson' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Context Window Packing Lab' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Eight sessions. One throughline.' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Instructor' })).toHaveCount(0)
+  await expect(page.getByRole('link', { name: 'FAQ' })).toHaveCount(0)
   await expectNoHorizontalOverflow(page)
   expect(runtimeErrors).toEqual([])
+})
+
+test('the hero uses responsive artwork and the product preview is interactive', async ({ page }) => {
+  await resetTestState(page)
+
+  const heroImage = page.locator('.marketing-hero-media')
+  await expect(heroImage).toHaveAttribute('width', '1672')
+  await expect(heroImage).toHaveAttribute('height', '941')
+  await expect(heroImage).toHaveAttribute('srcset', /artifact-constellation-960\.webp/)
+
+  const lab = page.locator('#interactive-learning')
+  await page.getByRole('button', { name: 'Add System instruction to context' }).click()
+  await expect(lab.getByText('2 / 8')).toBeVisible()
+})
+
+test('the marketing entrance treatment respects reduced motion', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await resetTestState(page)
+
+  const animationDuration = await page.locator('.marketing-hero-copy').evaluate(
+    (element) => Number.parseFloat(getComputedStyle(element).animationDuration) || 0,
+  )
+  expect(animationDuration).toBeLessThan(0.001)
 })
 
 test('the marketing header student-login link preserves the login route', async ({ page }) => {
@@ -242,7 +269,7 @@ for (const viewport of [
     await expectNoHorizontalOverflow(page)
     if (viewport.name === 'mobile') {
       await expect(page.getByRole('navigation', { name: 'Landing page' })).toBeHidden()
-      await expect(page.locator('header').getByRole('link', { name: 'Student login' })).toBeHidden()
+      await expect(page.locator('header').getByRole('link', { name: 'Student login' })).toBeVisible()
     }
     expect(runtimeErrors).toEqual([])
   })

@@ -14,10 +14,9 @@ function requirePublicSupabaseConfig() {
 }
 
 export function createSupabaseWaitlistService(): WaitlistService {
-  const { publishableKey, url } = requirePublicSupabaseConfig()
-
   return {
     async join(signup) {
+      const { publishableKey, url } = requirePublicSupabaseConfig()
       const response = await fetch(`${url}/functions/v1/join-waitlist`, {
         method: 'POST',
         headers: {

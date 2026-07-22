@@ -1,61 +1,55 @@
-import { ArrowRight, Check } from 'lucide-react'
+import { ArrowDownRight } from 'lucide-react'
 import { MarketingContainer } from './marketing-shared'
 import { WaitlistForm } from './waitlist-form'
 
 export function HeroSection() {
   return (
-    <section className="marketing-hero overflow-hidden py-12 sm:py-20 lg:py-24" id="top">
-      <MarketingContainer className="grid items-center gap-12 lg:grid-cols-2 lg:gap-14">
-        <div className="mx-auto flex max-w-2xl flex-col items-center text-center lg:mx-0 lg:items-start lg:text-left">
-          <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-border-strong bg-card px-3 py-1.5 text-xs font-medium text-muted">
-            <span aria-hidden="true" className="size-1.5 rounded-full bg-clay" />
-            AI Creator Bootcamp · early interest open
+    <section className="marketing-hero relative isolate flex min-h-[90svh] overflow-hidden" id="top">
+      <div aria-hidden="true" className="marketing-hero-placeholder absolute inset-0">
+        <span className="artifact-silhouette artifact-silhouette-one" />
+        <span className="artifact-silhouette artifact-silhouette-two" />
+        <span className="artifact-silhouette artifact-silhouette-three" />
+      </div>
+      <picture aria-hidden="true" className="absolute inset-0">
+        <source
+          media="(prefers-color-scheme: light)"
+          sizes="100vw"
+          srcSet="/marketing/artifact-constellation-light-960.webp 960w, /marketing/artifact-constellation-light.webp 1672w"
+          type="image/webp"
+        />
+        <img
+          alt=""
+          className="marketing-hero-media size-full object-cover"
+          decoding="async"
+          fetchPriority="high"
+          height="941"
+          loading="eager"
+          sizes="100vw"
+          src="/marketing/artifact-constellation.webp"
+          srcSet="/marketing/artifact-constellation-960.webp 960w, /marketing/artifact-constellation.webp 1672w"
+          width="1672"
+        />
+      </picture>
+      <div aria-hidden="true" className="marketing-hero-scrim absolute inset-0" />
+
+      <MarketingContainer className="relative flex flex-1 items-end pb-12 pt-28 sm:pb-16 sm:pt-36 lg:items-center lg:pb-20 lg:pt-32">
+        <div className="marketing-hero-copy w-full max-w-5xl">
+          <p className="mb-5 font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-clay sm:mb-7">
+            Practical AI education
           </p>
-          <h1 className="text-4xl font-extrabold leading-none tracking-tight text-foreground sm:text-6xl">
+          <h1 className="text-[clamp(2.65rem,8vw,7.75rem)] font-semibold leading-[0.84] tracking-[-0.065em] text-foreground">
             Build with AI.<br />Leave with proof.
           </h1>
-          <p className="mt-5 max-w-xl text-base leading-7 text-muted sm:text-lg sm:leading-8">
-            Artifact Academy is a focused, instructor-led program where you learn by building. Every session ends in a real, published artifact—not a certificate of attendance.
+          <p className="mt-7 max-w-2xl text-base leading-7 text-muted sm:mt-9 sm:text-xl sm:leading-8">
+            Learn modern AI workflows by creating real projects, receiving focused feedback, and publishing work you can show.
           </p>
-          <div className="mt-7 w-full max-w-xl">
-            <WaitlistForm formId="hero-waitlist" source="landing-hero" />
+          <div className="mt-8 max-w-2xl sm:mt-10">
+            <WaitlistForm formId="hero-waitlist" source="landing-hero" variant="hero" />
           </div>
+          <a className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-foreground underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-foreground" href="#interactive-learning">
+            See how it works <ArrowDownRight aria-hidden="true" className="size-4" />
+          </a>
         </div>
-
-        <aside aria-label="Example student artifact" className="relative mx-auto aspect-[4/3] w-full max-w-lg">
-          <div className="absolute inset-0 overflow-hidden rounded-card border border-border-strong bg-card shadow-floating">
-            <div className="flex h-11 items-center gap-2 border-b border-border bg-card-secondary px-4">
-              <span aria-hidden="true" className="size-2.5 rounded-full bg-border-strong" />
-              <span aria-hidden="true" className="size-2.5 rounded-full bg-border-strong" />
-              <span aria-hidden="true" className="size-2.5 rounded-full bg-border-strong" />
-              <span className="ml-2 truncate font-mono text-[11px] text-subtle">student-artifact.example</span>
-              <span className="ml-auto hidden items-center gap-1 rounded-full bg-success-soft px-2 py-1 font-mono text-[10px] font-semibold text-success sm:inline-flex">
-                <span aria-hidden="true" className="size-1 rounded-full bg-success" /> APPROVED
-              </span>
-            </div>
-            <div className="p-5 sm:p-7">
-              <div aria-hidden="true" className="h-3 w-1/2 rounded-full bg-foreground" />
-              <div aria-hidden="true" className="mt-3 h-2 w-4/5 rounded-full bg-border-strong" />
-              <div aria-hidden="true" className="mt-2 h-2 w-2/3 rounded-full bg-border-strong" />
-              <div className="mt-5 inline-flex h-9 items-center gap-2 rounded-control bg-clay px-4 text-xs font-semibold text-white">
-                Get started <ArrowRight aria-hidden="true" className="size-3.5" />
-              </div>
-              <div aria-hidden="true" className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
-                <div className="h-14 rounded-control border border-border bg-card-secondary sm:h-20" />
-                <div className="h-14 rounded-control border border-border bg-card-secondary sm:h-20" />
-                <div className="h-14 rounded-control border border-border bg-card-secondary sm:h-20" />
-              </div>
-            </div>
-            <div className="absolute inset-x-0 bottom-0 flex items-center gap-3 border-t border-border bg-card-secondary px-4 py-3">
-              <span className="grid size-7 place-items-center rounded-full bg-clay text-xs font-semibold text-white">A</span>
-              <span className="text-xs text-muted"><strong className="font-semibold text-foreground">Alireza</strong> approved this artifact</span>
-              <Check aria-hidden="true" className="ml-auto size-4 text-success" />
-            </div>
-          </div>
-          <span className="absolute -bottom-3 left-4 rounded-full bg-clay px-3 py-2 text-xs font-semibold text-white shadow-panel lg:-left-3">
-            Session 4 · student artifact
-          </span>
-        </aside>
       </MarketingContainer>
     </section>
   )

@@ -1,5 +1,5 @@
-import { BookOpen, Layers3, LayoutPanelTop, Monitor, PenTool, Sparkles } from 'lucide-react'
-import { artifactExamples, audienceGroups } from '../../content/marketing-content'
+import { ArrowUpRight, Layers3, LayoutPanelTop, Sparkles } from 'lucide-react'
+import { artifactExamples } from '../../content/marketing-content'
 import { MarketingContainer, SectionHeading } from './marketing-shared'
 
 const artifactIcons = {
@@ -8,52 +8,32 @@ const artifactIcons = {
   layers: Layers3,
 } as const
 
-const audienceIcons = {
-  pen: PenTool,
-  monitor: Monitor,
-  book: BookOpen,
-} as const
-
 export function ArtifactShowcase() {
   return (
-    <section className="scroll-mt-16 bg-background py-14 sm:py-22" id="build">
+    <section className="scroll-mt-16 bg-background py-24 sm:py-36 lg:py-44" id="build">
       <MarketingContainer>
-        <SectionHeading eyebrow="What you build" title="Ship real things, session by session">
+        <SectionHeading eyebrow="What students build" title="Work that exists beyond the lesson">
           <p>The AI Creator Bootcamp is built around making. Each artifact is deployed, reviewed by your instructor, and becomes proof you can keep.</p>
         </SectionHeading>
-        <div className="grid gap-4 md:grid-cols-3">
-          {artifactExamples.map((artifact) => {
+        <ol className="marketing-reveal border-t border-border-strong">
+          {artifactExamples.map((artifact, index) => {
             const Icon = artifactIcons[artifact.icon]
             return (
-              <article className="flex flex-col rounded-card border border-border bg-card p-6" key={artifact.title}>
-                <span className="grid size-10 place-items-center rounded-control border border-border bg-card-secondary text-clay">
-                  <Icon aria-hidden="true" className="size-4.5" />
-                </span>
-                <h3 className="mt-4 text-lg font-semibold tracking-tight text-foreground">{artifact.title}</h3>
-                <p className="mt-2 flex-1 text-sm leading-6 text-muted">{artifact.description}</p>
-                <span className="mt-5 self-start rounded-full border border-border bg-card-secondary px-2.5 py-1 font-mono text-[11px] text-muted">{artifact.tag}</span>
-              </article>
+              <li className="group grid gap-5 border-b border-border py-9 sm:grid-cols-[5rem_minmax(0,1fr)_minmax(14rem,0.7fr)_auto] sm:items-start sm:gap-8 sm:py-12" key={artifact.title}>
+                <span className="font-mono text-xs text-subtle">0{index + 1}</span>
+                <div className="flex items-start gap-4">
+                  <Icon aria-hidden="true" className="mt-1 size-5 shrink-0 text-clay" />
+                  <h3 className="text-3xl font-semibold leading-none tracking-[-0.04em] text-foreground sm:text-5xl">{artifact.title}</h3>
+                </div>
+                <div>
+                  <p className="text-sm leading-6 text-muted sm:text-base sm:leading-7">{artifact.description}</p>
+                  <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.12em] text-ai">{artifact.tag}</p>
+                </div>
+                <ArrowUpRight aria-hidden="true" className="hidden size-5 text-subtle transition-transform group-hover:-translate-y-1 group-hover:translate-x-1 sm:block" />
+              </li>
             )
           })}
-        </div>
-
-        <div className="mt-16 border-t border-border pt-14 sm:mt-22 sm:pt-20">
-          <SectionHeading eyebrow="Who it’s for" title="Made for people who would rather build" />
-          <div className="grid gap-4 md:grid-cols-3">
-            {audienceGroups.map((group) => {
-              const Icon = audienceIcons[group.icon]
-              return (
-                <article className="rounded-card border border-border bg-card p-6" key={group.title}>
-                  <span className="grid size-10 place-items-center rounded-control border border-clay/30 bg-clay-soft text-clay">
-                    <Icon aria-hidden="true" className="size-4.5" />
-                  </span>
-                  <h3 className="mt-4 font-semibold text-foreground">{group.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted">{group.description}</p>
-                </article>
-              )
-            })}
-          </div>
-        </div>
+        </ol>
       </MarketingContainer>
     </section>
   )

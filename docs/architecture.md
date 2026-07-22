@@ -11,7 +11,8 @@ src/
     course-content.ts           flattened sequence and selectors
     ai-creator-bootcamp/        course and eight session modules
   components/
-    auth/                       session provider and auth context
+    auth/                       route-scoped session provider and auth context
+    marketing/                  public editorial sections and waitlist form
     ui/                         reusable design-system primitives
     academy/                    learning-domain components
     layout/                     protected shell, navigator, and top bar
@@ -45,7 +46,8 @@ There are no production routes for dashboards, catalogs, artifact management, po
 
 - Course content lives only in `src/content/ai-creator-bootcamp`; it contains no student-specific state.
 - Pages and components depend on mapped application types, never raw Supabase response shapes.
-- Components do not call Supabase directly. `LearningRepository` owns progress and submission persistence; `AuthService` owns session actions.
+- Components do not call Supabase directly. `LearningRepository` owns progress and submission persistence; `AuthService` owns session actions; `WaitlistService` owns the public Edge Function request.
+- Public routes initialize only the configuration-safe waitlist adapter. Authentication, the Supabase client, and the learning repository load only inside the `/login` and protected-learning route boundary, so `/`, `/privacy`, and `/terms` remain renderable without Supabase environment variables.
 - The production adapter is selected by normal builds. The in-memory UI test adapter is selected only by `vite build --mode test` and is split out of production output.
 - UI components remain unaware of database tables and RLS policy details.
 - Course content is TypeScript data, not a CMS and not a database-backed curriculum.

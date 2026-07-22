@@ -1,24 +1,29 @@
-import type { AppServices } from './types'
+import type { AppServiceBootstrap, ProtectedServices } from './types'
 
-export async function createAppServices(): Promise<AppServices> {
+export async function createAppServices(): Promise<AppServiceBootstrap> {
   if (import.meta.env.MODE === 'test') {
     const { createInMemoryAppServices } = await import('../testing/in-memory-services')
-    return createInMemoryAppServices()
+    const services = createInMemoryAppServices()
+    return {
+      waitlist: services.waitlist,
+      loadProtectedServices: () => Promise.resolve(services),
+    }
   }
 
-  const [
-    { createSupabaseAuthService },
-    { createSupabaseLearningRepository },
-    { createSupabaseWaitlistService },
-  ] = await Promise.all([
-    import('../supabase/auth'),
-    import('../supabase/learning-repository'),
-    import('../supabase/waitlist'),
-  ])
+  const { createSupabaseWaitlistService } = await import('../supabase/waitlist')
+  let protectedServicesPromise: Promise<ProtectedServices> | undefined
 
   return {
-    auth: createSupabaseAuthService(),
-    learning: createSupabaseLearningRepository(),
     waitlist: createSupabaseWaitlistService(),
+    loadProtectedServices() {
+      protectedServicesPromise ??= Promise.all([
+        import('../supabase/auth'),
+        import('../supabase/learning-repository'),
+      ]).then(([{ createSupabaseAuthService }, { createSupabaseLearningRepository }]) => ({
+        auth: createSupabaseAuthService(),
+        learning: createSupabaseLearningRepository(),
+      }))
+      return protectedServicesPromise
+    },
   }
 }
